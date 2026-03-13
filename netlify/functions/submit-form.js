@@ -104,7 +104,7 @@ export default async (request) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         chat_id: TELEGRAM_CHAT_ID,
-        text: message,
+        text: "TEST FROM PAWSITTER SITE",
         parse_mode: 'MarkdownV2',
       }),
     });
