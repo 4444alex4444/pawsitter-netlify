@@ -104,9 +104,8 @@ export default async (request) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         chat_id: TELEGRAM_CHAT_ID,
-        text: "TEST FROM PAWSITTER SITE",
-        parse_mode: 'MarkdownV2',
-      }),
+        text: message,
+              }),
     });
 
     const telegramData = await telegramResponse.json();
