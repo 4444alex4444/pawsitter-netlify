@@ -56,6 +56,11 @@ const PET_QUIPS = {
   other: ['Это не я вращаюсь. Это Земля','Технически я здесь главный','Это мой стартап','Я вообще-то консультант по комфорту','Это не я вращаюсь. Это Вселенная вращается вокруг меня'],
 };
 
+function pick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+
 // ── Primitives ────────────────────────────────────────────────────────────────
 function Fld({ label, hint, err, req, children }) {
   return (
@@ -869,148 +874,87 @@ function Landing({ onForm, onSitter, reviews }) {
     </div>
   );
 }
-function SitterSection({ onApply }) {
+
+function HowItWorks() {
   return (
-    <section style={{ padding:'70px 20px',background:'linear-gradient(135deg,#F0FBF8,#E8F8FF)' }}>
-      <div style={{ maxWidth:960,margin:'0 auto' }}>
-        <div style={{ display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(300px,1fr))',gap:40,alignItems:'start' }}>
-          <div>
-            <div style={{ fontSize:12,fontWeight:800,color:SAGE,letterSpacing:1,textTransform:'uppercase',marginBottom:8 }}>Для ситтеров</div>
-            <h2 style={{ fontSize:24,fontWeight:900,color:DARK,margin:'0 0 14px',lineHeight:1.3 }}>Зарабатывайте, занимаясь любимым делом 🐾</h2>
-            <p style={{ fontSize:14,color:MUTED,lineHeight:1.75,marginBottom:20 }}>Присоединяйтесь к команде PawSitter — помогайте питомцам чувствовать себя как дома.</p>
-            <div style={{ display:'flex',gap:10,flexWrap:'wrap',marginBottom:22 }}>
-              {['🕒 Гибкий график','💰 Достойная оплата','🐶 Любимая работа','📈 Стабильный поток'].map(b=><div key={b} style={{ padding:'7px 12px',borderRadius:20,background:'#fff',border:`1px solid ${BORDER}`,fontSize:12.5,fontWeight:700,color:'#555' }}>{b}</div>)}
+    <section style={{ padding:'64px 20px', background:'#fff', borderTop:`1px solid ${BORDER}` }}>
+      <div style={{ maxWidth:840, margin:'0 auto' }}>
+        <div style={{ textAlign:'center', marginBottom:40 }}>
+          <h2 style={{ fontSize:24, fontWeight:900, color:DARK, margin:'0 0 6px' }}>Как это работает?</h2>
+          <p style={{ color:MUTED, fontSize:14, margin:0 }}>Просто, прозрачно, с заботой</p>
+        </div>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))', gap:18 }}>
+          {[
+            {n:'01',e:'📋',t:'Заполните заявку',d:'Расскажите всё о питомце — здоровье, режим, привычки'},
+            {n:'02',e:'🤝',t:'Подберём ситтера',d:'Свяжемся в течение 30 минут и предложим кандидатов'},
+            {n:'03',e:'🐾',t:'Знакомство',d:'Ситтер познакомится с питомцем до начала ухода'},
+            {n:'04',e:'📸',t:'Отдыхайте',d:'Ежедневные фото и видео. Ваш любимец счастлив!'}
+          ].map(s=>(
+            <div key={s.n} style={{ textAlign:'center', padding:'18px 14px', borderRadius:16, background:CREAM, border:`1px solid ${BORDER}` }}>
+              <div style={{ width:38, height:38, borderRadius:99, background:grad, color:'#fff', fontWeight:900, fontSize:12, display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 12px' }}>{s.n}</div>
+              <div style={{ fontSize:30, marginBottom:8 }}>{s.e}</div>
+              <div style={{ fontWeight:800, fontSize:13, color:DARK, marginBottom:5 }}>{s.t}</div>
+              <div style={{ fontSize:12.5, color:MUTED, lineHeight:1.6 }}>{s.d}</div>
             </div>
-            <button onClick={onApply} style={{ padding:'14px 28px',borderRadius:14,border:'none',background:sageGrad,color:'#fff',fontWeight:800,fontSize:15,cursor:'pointer',boxShadow:'0 4px 20px rgba(82,183,136,.35)' }}>Хочу стать ситтером →</button>
-          </div>
-          <div>
-            <h3 style={{ fontSize:14,fontWeight:800,color:DARK,marginBottom:12 }}>Что мы ценим:</h3>
-            {REQS.map((r,i)=>(
-              <div key={i} style={{ display:'flex',gap:11,alignItems:'flex-start',background:'#fff',borderRadius:13,padding:'11px 13px',border:`1px solid ${BORDER}`,marginBottom:8 }}>
-                <div style={{ fontSize:20,flexShrink:0 }}>{r.e}</div>
-                <div><div style={{ fontWeight:800,fontSize:13,color:DARK }}>{r.t}</div><div style={{ fontSize:12,color:MUTED,marginTop:2,lineHeight:1.5 }}>{r.d}</div></div>
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
       </div>
     </section>
   );
 }
 
-function SitterApply({ onBack, onError }) {
-  const [sf,setSf]=useState({name:'',phone:'',email:'',city:'',petTypes:[],services:[],experience:'',hasPets:'',hasVetEdu:'',motivation:'',refs:''});
-  const [sent,setSent]=useState(false);
-  const [busy,setBusy]=useState(false);
-  const [error,setError]=useState('');
-  function su(k,v){setSf(x=>({...x,[k]:v})); setError(''); onError('');}
-  async function submitSitter(){
-    if(!sf.name.trim()){ setError('Введите имя и фамилию'); return; }
-    if(String(sf.phone||'').replace(/\D/g,'').length<10){ setError('Введите телефон полностью'); return; }
-    try {
-      setBusy(true);
-      const res = await fetch('/api/submit-form', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ type:'sitter', payload: sf })
-      });
-      const data = await res.json().catch(()=>({}));
-      if(!res.ok || !data.ok) throw new Error(data.error || 'Не удалось отправить заявку');
-      setSent(true);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Не удалось отправить заявку';
-      setError(msg);
-      onError(msg);
-    } finally {
-      setBusy(false);
-    }
-  }
-  if(sent) return (
-    <div style={{ minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:`linear-gradient(135deg,#F0FBF8,${CREAM})`,padding:20 }}>
-      <Card style={{ maxWidth:380,width:'100%',textAlign:'center' }}>
-        <div style={{ fontSize:60 }}>🎉</div>
-        <h2 style={{ color:DARK,fontWeight:900 }}>Заявка отправлена!</h2>
-        <p style={{ color:MUTED,fontSize:14,lineHeight:1.7 }}>Рассмотрим анкету в течение 2–3 рабочих дней и свяжемся для интервью.</p>
-        <Btn onClick={onBack} variant='sage' style={{ width:'100%',marginTop:16 }}>← На главную</Btn>
-      </Card>
-    </div>
-  );
+function WhyUs() {
+  const items = [
+    ['🔒','Проверенные ситтеры','Анкеты, интервью и рейтинг по отзывам'],
+    ['📸','Фото и видео каждый день','Чтобы вы не гадали, как там хвостик и ушки'],
+    ['🏥','Ветеринарная поддержка','Если случится форс-мажор, не остаёмся в вакууме'],
+    ['💬','Связь без тумана','Быстрые ответы и понятные договорённости']
+  ];
   return (
-    <div style={{ minHeight:'100vh',background:`linear-gradient(135deg,#F0FBF8,${CREAM})`,padding:'20px 14px 60px' }}>
-      <div style={{ maxWidth:520,margin:'0 auto' }}>
-        <button onClick={onBack} style={{ border:'none',background:'none',color:MUTED,cursor:'pointer',fontSize:14,fontWeight:700,marginBottom:12,padding:0 }}>← На главную</button>
-        <Card>
-          <div style={{ textAlign:'center',marginBottom:22 }}>
-            <div style={{ fontSize:42 }}>🧑</div>
-            <h2 style={{ margin:'8px 0 5px',fontSize:20,color:DARK,fontWeight:900 }}>Стать ситтером PawSitter</h2>
-            <p style={{ color:MUTED,fontSize:13,margin:0 }}>Расскажите о себе — рады новым членам команды!</p>
-          </div>
-          <Fld label='Имя и фамилия' req><Inp v={sf.name} c={v=>su('name',v)} ph='Ваше имя' /></Fld>
-          <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:10 }}>
-            <Fld label='Телефон' req><PhoneInp v={sf.phone} c={v=>su('phone',v)} /></Fld>
-            <Fld label='Email'><Inp v={sf.email} c={v=>su('email',v)} ph='email@mail.ru' type='email' /></Fld>
-          </div>
-          <Fld label='Ваш город'><Inp v={sf.city} c={v=>su('city',v)} ph='Москва, СПб...' /></Fld>
-          <Fld label='С какими питомцами готовы работать?'><Chips v={sf.petTypes} c={v=>su('petTypes',v)} opts={PET_TYPES.map(t=>({v:t.v,l:t.e+' '+t.l}))} multi /></Fld>
-          <Fld label='Тип услуг'><Chips v={sf.services} c={v=>su('services',v)} opts={[{v:'boarding',l:'🏡 Передержка у себя'},{v:'inhome',l:'🚪 Выезд к хозяевам'}]} multi /></Fld>
-          <Fld label='Ваш опыт с животными'><Chips v={sf.experience} c={v=>su('experience',v)} opts={[{v:'none',l:'Начинающий'},{v:'some',l:'Есть опыт'},{v:'rich',l:'Богатый опыт'},{v:'pro',l:'Профессионал'}]} /></Fld>
-          <Fld label='Есть свои животные?'><Chips v={sf.hasPets} c={v=>su('hasPets',v)} opts={[{v:'yes',l:'Да'},{v:'no',l:'Нет'}]} /></Fld>
-          <Fld label='Ветеринарное образование?'><Chips v={sf.hasVetEdu} c={v=>su('hasVetEdu',v)} opts={[{v:'yes',l:'Есть'},{v:'partial',l:'Курсы'},{v:'no',l:'Нет'}]} /></Fld>
-          <Fld label='Почему хотите стать ситтером?'><Txt v={sf.motivation} c={v=>su('motivation',v)} ph='Люблю животных с детства...' rows={3} /></Fld>
-          <Fld label='Рекомендации'><Txt v={sf.refs} c={v=>su('refs',v)} ph='Имя, телефон или соцсети' rows={2} /></Fld>
-          {error && <div style={{ background:'#FFF1F0', color:'#B42318', border:'1px solid #FECACA', borderRadius:12, padding:'10px 12px', fontSize:13, lineHeight:1.5, marginBottom:10 }}>⚠️ {error}</div>}
-          <Btn onClick={submitSitter} disabled={busy} style={{ width:'100%',marginTop:6 }}>{busy?'Отправляем...':'Отправить заявку ситтера 🐾'}</Btn>
-        </Card>
+    <section style={{ padding:'60px 20px', background:'linear-gradient(180deg,#FFFDFB,#FFF7F0)' }}>
+      <div style={{ maxWidth:960, margin:'0 auto' }}>
+        <div style={{ textAlign:'center', marginBottom:34 }}>
+          <h2 style={{ fontSize:24, fontWeight:900, color:DARK, margin:'0 0 8px' }}>Почему PawSitter</h2>
+          <p style={{ color:MUTED, fontSize:14, margin:0 }}>Чтобы питомец жил спокойно, а хозяин не дёргался каждые пять минут</p>
+        </div>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))', gap:16 }}>
+          {items.map(([e,t,d]) => (
+            <div key={t} style={{ background:'#fff', border:`1px solid ${BORDER}`, borderRadius:18, padding:'18px 16px', boxShadow:'0 4px 20px rgba(80,30,10,.06)' }}>
+              <div style={{ fontSize:28, marginBottom:10 }}>{e}</div>
+              <div style={{ fontWeight:800, fontSize:14, color:DARK, marginBottom:6 }}>{t}</div>
+              <div style={{ fontSize:12.5, color:MUTED, lineHeight:1.65 }}>{d}</div>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
 
-function Landing({ onForm, onSitter, reviews }) {
-  const floaters=[{e:'🐕',top:'8%',left:'5%',size:56,dur:3},{e:'🐈',top:'14%',right:'7%',size:50,dur:2.6},{e:'🐇',top:'70%',left:'3%',size:36,dur:3.5},{e:'🐹',top:'74%',right:'4%',size:32,dur:2.9},{e:'🦜',top:'44%',left:'1%',size:30,dur:4},{e:'🐾',top:'58%',right:'2%',size:38,dur:3.3}];
+function FAQ() {
+  const rows = [
+    ['Где живёт питомец во время передержки?','Либо у ситтера дома, либо ситтер приходит к вам — зависит от выбранного сценария'],
+    ['Как я пойму, что всё в порядке?','Ситтер присылает фото, видео и короткие отчёты с той частотой, которую вы выберете'],
+    ['Что если питомцу станет плохо?','В анкете есть данные ветклиники и экстренного контакта — это как раз на такой случай'],
+    ['Можно ли подобрать ситтера под характер питомца?','Да, для этого мы и собираем подробную анкету о привычках, здоровье и ритуалах']
+  ];
   return (
-    <div style={{ background:CREAM }}>
-      <section style={{ padding:'80px 20px 70px',background:'linear-gradient(150deg,#FFF8F0 0%,#FFF4EB 40%,#F0F8F5 100%)',position:'relative',overflow:'hidden' }}>
-        {floaters.map((p,i)=><div key={i} style={{ position:'absolute',top:p.top,left:p.left,right:p.right,fontSize:p.size,opacity:.07,animation:`float ${p.dur}s ease ${i*.4}s infinite`,pointerEvents:'none',userSelect:'none' }}>{p.e}</div>)}
-        <div style={{ maxWidth:680,margin:'0 auto',textAlign:'center',position:'relative',zIndex:1 }}>
-          <div style={{ display:'inline-flex',alignItems:'center',gap:8,background:'#fff',borderRadius:99,padding:'6px 16px',fontSize:12.5,fontWeight:700,color:P,border:`1px solid ${BORDER}`,marginBottom:20,boxShadow:'0 2px 16px rgba(232,107,79,.12)' }}>🐾 Надёжная забота о питомцах</div>
-          <h1 style={{ fontSize:'clamp(26px,5.5vw,44px)',fontWeight:900,color:DARK,lineHeight:1.2,margin:'0 0 10px' }}>Вы по делам или в путешествии?</h1>
-          <h2 style={{ fontSize:'clamp(19px,4vw,31px)',fontWeight:800,margin:'0 0 18px',lineHeight:1.3,background:grad,WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent' }}>Ваш питомец в надёжных и любящих руках 🐾</h2>
-          <p style={{ fontSize:15,color:MUTED,lineHeight:1.75,marginBottom:30,maxWidth:500,margin:'0 auto 30px' }}>Проверенные ситтеры с душой позаботятся о вашем любимце — дома у ситтера или у вас. Фото каждый день. Спокойствие круглосуточно.</p>
-          <div style={{ display:'flex',gap:12,justifyContent:'center',flexWrap:'wrap',marginBottom:28 }}>
-            <button onClick={onForm} style={{ padding:'16px 34px',borderRadius:14,border:'none',background:grad,color:'#fff',fontWeight:800,fontSize:15,cursor:'pointer',boxShadow:'0 4px 24px rgba(232,107,79,.38)',animation:'glow 2.5s ease infinite' }}>Найти ситтера 🐾</button>
-            <button onClick={onSitter} style={{ padding:'16px 28px',borderRadius:14,border:`2px solid ${BORDER}`,background:'#fff',color:'#666',fontWeight:800,fontSize:15,cursor:'pointer' }}>Стать ситтером →</button>
-          </div>
-          <div style={{ display:'flex',gap:18,justifyContent:'center',flexWrap:'wrap' }}>
-            {[['🔒','Проверенные ситтеры'],['📸','Ежедневные фото и видео'],['🏥','Ветеринарная поддержка'],['⭐','Рейтинги и отзывы']].map(item=><div key={item[1]} style={{ display:'flex',alignItems:'center',gap:6,fontSize:12.5,color:MUTED,fontWeight:700 }}><span>{item[0]}</span>{item[1]}</div>)}
-          </div>
+    <section style={{ padding:'60px 20px 80px', background:'#fff' }}>
+      <div style={{ maxWidth:860, margin:'0 auto' }}>
+        <div style={{ textAlign:'center', marginBottom:28 }}>
+          <h2 style={{ fontSize:24, fontWeight:900, color:DARK, margin:'0 0 8px' }}>Частые вопросы</h2>
+          <p style={{ color:MUTED, fontSize:14, margin:0 }}>Немного порядка в этом странном и прекрасном мире передержек</p>
         </div>
-      </section>
-      <section style={{ padding:'64px 20px',background:'#fff',borderTop:`1px solid ${BORDER}` }}>
-        <div style={{ maxWidth:840,margin:'0 auto' }}>
-          <div style={{ textAlign:'center',marginBottom:40 }}>
-            <h2 style={{ fontSize:24,fontWeight:900,color:DARK,margin:'0 0 6px' }}>Как это работает?</h2>
-            <p style={{ color:MUTED,fontSize:14,margin:0 }}>Просто, прозрачно, с заботой</p>
-          </div>
-          <div style={{ display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:18 }}>
-            {[{n:'01',e:'📋',t:'Заполните заявку',d:'Расскажите всё о питомце — здоровье, режим, привычки'},{n:'02',e:'🤝',t:'Подберём ситтера',d:'Свяжемся в течение 30 минут и предложим кандидатов'},{n:'03',e:'🐾',t:'Знакомство',d:'Ситтер познакомится с питомцем до начала ухода'},{n:'04',e:'📸',t:'Отдыхайте',d:'Ежедневные фото и видео. Ваш любимец счастлив!'}].map(s=>(
-              <div key={s.n} style={{ textAlign:'center',padding:'18px 14px',borderRadius:16,background:CREAM,border:`1px solid ${BORDER}` }}>
-                <div style={{ width:38,height:38,borderRadius:99,background:grad,color:'#fff',fontWeight:900,fontSize:12,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 12px' }}>{s.n}</div>
-                <div style={{ fontSize:30,marginBottom:8 }}>{s.e}</div>
-                <div style={{ fontWeight:800,fontSize:13,color:DARK,marginBottom:5 }}>{s.t}</div>
-                <div style={{ fontSize:12.5,color:MUTED,lineHeight:1.6 }}>{s.d}</div>
-              </div>
-            ))}
-          </div>
+        <div style={{ display:'grid', gap:12 }}>
+          {rows.map(([q,a]) => (
+            <div key={q} style={{ background:CREAM, border:`1px solid ${BORDER}`, borderRadius:16, padding:'16px 18px' }}>
+              <div style={{ fontWeight:800, color:DARK, fontSize:14, marginBottom:6 }}>{q}</div>
+              <div style={{ fontSize:12.5, color:MUTED, lineHeight:1.7 }}>{a}</div>
+            </div>
+          ))}
         </div>
-      </section>
-      <Reviews reviews={reviews} />
-      <SitterSection onApply={onSitter} />
-      <footer style={{ background:DARK,padding:'28px 20px',textAlign:'center' }}>
-        <div style={{ fontSize:19,fontWeight:900,color:'#fff',marginBottom:5 }}>🐾 PawSitter</div>
-        <p style={{ color:'rgba(255,255,255,.3)',fontSize:12,margin:0 }}>Забота о питомцах с любовью · {new Date().getFullYear()}</p>
-      </footer>
-    </div>
+      </div>
+    </section>
   );
 }
 
