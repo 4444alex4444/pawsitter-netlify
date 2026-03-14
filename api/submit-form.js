@@ -1,7 +1,5 @@
-function escapeMarkdown(value = '') {
-  return String(value)
-    .replace(/\/g, '\\')
-    .replace(/([_*\[\]()~`>#+\-=|{}.!])/g, '\$1');
+function escapeText(value = '') {
+  return String(value ?? '');
 }
 
 function listOrDash(values, mapper = (x) => x) {
@@ -10,57 +8,81 @@ function listOrDash(values, mapper = (x) => x) {
 }
 
 function buildOwnerMessage(f) {
-  const petIcons = { dog: '🐕', cat: '🐈', rabbit: '🐇', hamster: '🐹', bird: '🦜', other: '🐾' };
-  const serviceType = f.serviceType === 'boarding' ? 'Передержка у ситтера' : 'Присмотр на дому';
-  const vacc = f.vaccinated === 'yes' ? '✅ Привит' : f.vaccinated === 'partial' ? '⚠️ Частично' : '❌ Нет';
-  const allergies = Array.isArray(f.allergies) && f.allergies.includes('__none')
-    ? 'Нет'
-    : listOrDash((f.allergies || []).filter((x) => x !== '__other' && x !== '__none'));
+  const petIcons = {
+    dog: '🐕',
+    cat: '🐈',
+    rabbit: '🐇',
+    hamster: '🐹',
+    bird: '🦜',
+    other: '🐾',
+  };
+
+  const serviceType =
+    f.serviceType === 'boarding' ? 'Передержка у ситтера' : 'Присмотр на дому';
+
+  const vacc =
+    f.vaccinated === 'yes'
+      ? '✅ Привит'
+      : f.vaccinated === 'partial'
+        ? '⚠️ Частично'
+        : '❌ Нет';
+
+  const allergies =
+    Array.isArray(f.allergies) && f.allergies.includes('__none')
+      ? 'Нет'
+      : listOrDash((f.allergies || []).filter((x) => x !== '__other' && x !== '__none'));
+
   const meds = f.noMeds
     ? 'Не принимает'
     : listOrDash((f.meds || []).map((m) => `${m.name || 'Без названия'} ${m.dose || ''}`.trim()));
 
   return [
-    '🐾 *Новая заявка PawSitter*',
+    '🐾 Новая заявка PawSitter',
     '',
-    `*Питомец:* ${escapeMarkdown(f.petName || '—')} ${petIcons[f.petType] || ''}`,
-    `*Вид:* ${escapeMarkdown(f.petType || '—')}`,
-    `*Порода:* ${escapeMarkdown(f.breed || '—')}`,
-    `*Возраст:* ${escapeMarkdown(f.age ?? '—')} л.`,
-    `*Вес:* ${escapeMarkdown(f.weight ?? '—')} кг`,
-    `*Пол:* ${escapeMarkdown(f.gender === 'male' ? 'Мальчик' : f.gender === 'female' ? 'Девочка' : '—')}`,
-    `*Вакцинация:* ${escapeMarkdown(vacc)}`,
-    `*Аллергии:* ${escapeMarkdown(allergies === '—' && f.allergyCustom ? f.allergyCustom : allergies)}`,
-    `*Лекарства:* ${escapeMarkdown(meds)}`,
-    `*Хронические особенности:* ${escapeMarkdown(f.chronic || '—')}`,
+    `Питомец: ${escapeText(f.petName || '—')} ${petIcons[f.petType] || ''}`,
+    `Вид: ${escapeText(f.petType || '—')}`,
+    `Порода: ${escapeText(f.breed || '—')}`,
+    `Возраст: ${escapeText(f.age ?? '—')} л.`,
+    `Вес: ${escapeText(f.weight ?? '—')} кг`,
+    `Пол: ${escapeText(
+      f.gender === 'male' ? 'Мальчик' : f.gender === 'female' ? 'Девочка' : '—'
+    )}`,
+    `Вакцинация: ${escapeText(vacc)}`,
+    `Аллергии: ${escapeText(allergies === '—' && f.allergyCustom ? f.allergyCustom : allergies)}`,
+    `Лекарства: ${escapeText(meds)}`,
+    `Хронические особенности: ${escapeText(f.chronic || '—')}`,
     '',
-    `*Даты:* ${escapeMarkdown(f.dateFrom || '—')} → ${escapeMarkdown(f.dateTo || '—')}`,
-    `*Услуга:* ${escapeMarkdown(serviceType)}`,
-    f.address ? `*Адрес:* ${escapeMarkdown(f.address)}` : null,
+    `Даты: ${escapeText(f.dateFrom || '—')} → ${escapeText(f.dateTo || '—')}`,
+    `Услуга: ${escapeText(serviceType)}`,
+    f.address ? `Адрес: ${escapeText(f.address)}` : null,
     '',
-    `*Хозяин:* ${escapeMarkdown(f.ownerName || '—')}`,
-    `*Телефон:* +7${escapeMarkdown(f.ownerPhone || '')}`,
-    `*Email:* ${escapeMarkdown(f.ownerEmail || '—')}`,
-    `*Экстренный контакт:* ${escapeMarkdown(f.emergName || '—')} (${escapeMarkdown(f.emergRel || '—')}) +7${escapeMarkdown(f.emergPhone || '')}`,
-    `*Пожелания:* ${escapeMarkdown(f.wishes || '—')}`,
-  ].filter(Boolean).join('\n');
+    `Хозяин: ${escapeText(f.ownerName || '—')}`,
+    `Телефон: +7${escapeText(f.ownerPhone || '')}`,
+    `Email: ${escapeText(f.ownerEmail || '—')}`,
+    `Экстренный контакт: ${escapeText(f.emergName || '—')} (${escapeText(
+      f.emergRel || '—'
+    )}) +7${escapeText(f.emergPhone || '')}`,
+    `Пожелания: ${escapeText(f.wishes || '—')}`,
+  ]
+    .filter(Boolean)
+    .join('\n');
 }
 
 function buildSitterMessage(sf) {
   return [
-    '🧑 *Новая анкета ситтера PawSitter*',
+    '🧑 Новая анкета ситтера PawSitter',
     '',
-    `*Имя:* ${escapeMarkdown(sf.name || '—')}`,
-    `*Телефон:* +7${escapeMarkdown(sf.phone || '')}`,
-    `*Email:* ${escapeMarkdown(sf.email || '—')}`,
-    `*Город:* ${escapeMarkdown(sf.city || '—')}`,
-    `*Питомцы:* ${escapeMarkdown(listOrDash(sf.petTypes))}`,
-    `*Услуги:* ${escapeMarkdown(listOrDash(sf.services))}`,
-    `*Опыт:* ${escapeMarkdown(sf.experience || '—')}`,
-    `*Есть свои животные:* ${escapeMarkdown(sf.hasPets || '—')}`,
-    `*Ветобразование:* ${escapeMarkdown(sf.hasVetEdu || '—')}`,
-    `*Мотивация:* ${escapeMarkdown(sf.motivation || '—')}`,
-    `*Рекомендации:* ${escapeMarkdown(sf.refs || '—')}`,
+    `Имя: ${escapeText(sf.name || '—')}`,
+    `Телефон: +7${escapeText(sf.phone || '')}`,
+    `Email: ${escapeText(sf.email || '—')}`,
+    `Город: ${escapeText(sf.city || '—')}`,
+    `Питомцы: ${escapeText(listOrDash(sf.petTypes))}`,
+    `Услуги: ${escapeText(listOrDash(sf.services))}`,
+    `Опыт: ${escapeText(sf.experience || '—')}`,
+    `Есть свои животные: ${escapeText(sf.hasPets || '—')}`,
+    `Ветобразование: ${escapeText(sf.hasVetEdu || '—')}`,
+    `Мотивация: ${escapeText(sf.motivation || '—')}`,
+    `Рекомендации: ${escapeText(sf.refs || '—')}`,
   ].join('\n');
 }
 
@@ -81,7 +103,10 @@ export async function POST(request) {
     const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
     if (!TELEGRAM_TOKEN || !TELEGRAM_CHAT_ID) {
-      return json({ ok: false, error: 'Не настроены переменные TELEGRAM_TOKEN и TELEGRAM_CHAT_ID в Vercel.' }, 500);
+      return json(
+        { ok: false, error: 'Не настроены переменные TELEGRAM_TOKEN и TELEGRAM_CHAT_ID в Vercel.' },
+        500
+      );
     }
 
     const body = await request.json();
@@ -89,8 +114,14 @@ export async function POST(request) {
     const payload = body?.payload || {};
 
     let message = '';
+
     if (type === 'owner') {
-      if (!payload.petName || !payload.petType || !payload.ownerName || String(payload.ownerPhone || '').replace(/\D/g, '').length < 10) {
+      if (
+        !payload.petName ||
+        !payload.petType ||
+        !payload.ownerName ||
+        String(payload.ownerPhone || '').replace(/\D/g, '').length < 10
+      ) {
         return json({ ok: false, error: 'Форма заполнена не полностью.' }, 400);
       }
       message = buildOwnerMessage(payload);
@@ -103,19 +134,29 @@ export async function POST(request) {
       return json({ ok: false, error: 'Неизвестный тип заявки.' }, 400);
     }
 
-    const telegramResponse = await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: TELEGRAM_CHAT_ID,
-        text: message,
-      }),
-    });
+    const telegramResponse = await fetch(
+      `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: TELEGRAM_CHAT_ID,
+          text: message,
+        }),
+      }
+    );
 
     const telegramData = await telegramResponse.json();
 
     if (!telegramResponse.ok || !telegramData.ok) {
-      return json({ ok: false, error: 'Telegram не принял сообщение. Проверь токен бота, chat id и права бота.', telegram: telegramData }, 502);
+      return json(
+        {
+          ok: false,
+          error: 'Telegram не принял сообщение. Проверь токен бота, chat id и права бота.',
+          telegram: telegramData,
+        },
+        502
+      );
     }
 
     return json({ ok: true });
