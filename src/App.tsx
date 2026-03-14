@@ -12,7 +12,12 @@ body,input,textarea,select,button{font-family:'Nunito',system-ui,sans-serif}
 @keyframes shimmer{0%,100%{opacity:.1}50%{opacity:.45}}
 @keyframes heartFloat{0%{opacity:0;transform:scale(.3) translateY(0)}55%{opacity:1;transform:scale(1.1) translateY(-28px)}100%{opacity:0;transform:scale(.6) translateY(-60px)}}
 @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
-@keyframes catSpin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+@keyframes catSpin{0%,14%{transform:rotate(0deg)}14.1%,58%{transform:rotate(360deg)}58.1%,72%{transform:rotate(360deg)}72.1%,100%{transform:rotate(720deg)}}
+@keyframes reasonEnter{0%{opacity:0;transform:translateY(160px) scale(.82)}100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes driftA{0%,100%{transform:translate(0,0)}50%{transform:translate(0,-10px)}}
+@keyframes driftB{0%,100%{transform:translate(0,0)}50%{transform:translate(8px,-6px)}}
+@keyframes driftC{0%,100%{transform:translate(0,0)}50%{transform:translate(-10px,6px)}}
+@keyframes driftD{0%,100%{transform:translate(0,0)}50%{transform:translate(6px,10px)}}
 @keyframes dogZoom{0%,44%{transform:scaleX(1)}50%{transform:scaleX(1) translateX(8px)}56%,100%{transform:scaleX(-1)}}
 @keyframes rabbitBinky{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-22px) rotate(-18deg)}50%{transform:translateY(-14px) rotate(16deg)}75%{transform:translateY(-3px)}}
 @keyframes birdBob{0%,100%{transform:translateY(0) rotate(0)}30%{transform:translateY(-7px) rotate(-14deg)}65%{transform:translateY(-4px) rotate(12deg)}}
@@ -48,57 +53,8 @@ const PET_QUIPS = {
   rabbit: ['Кролик. Срочно проверяем безопасность проводов','Кролик. Значит будет много ушей, скорости и внезапных исчезновений'],
   hamster: ['Хомяк. Маленький, а логистика как у склада','Хомяк. Кто-то здесь очень серьёзно относится к семечкам','Маленький клиент, большие амбиции'],
   bird: ['Птица? Значит будильник теперь пернатый','Птица отмечена. Готовим корм и уважение к вокалу','Птица. Значит кто-то здесь любит быть громким и красивым одновременно'],
-  other: ['Я тут не просто так. Я тут с важной кошачьей экспертизой','Псс… давайте быстро сделаем тыгыдык по анкете','Это не я вращаюсь. Это Вселенная вращается вокруг меня'],
+  other: ['Это не я вращаюсь. Это Земля','Технически я здесь главный','Это мой стартап','Я вообще-то консультант по комфорту','Это не я вращаюсь. Это Вселенная вращается вокруг меня'],
 };
-
-const START_LINES = [
-  'Не обращайте внимания: это не я вращаюсь, а вселенная вокруг меня',
-  'Сделаем вместе с тобой тыгыдык по заявке и опишем питомца',
-  'Псс… давайте быстро сделаем тыгыдык по анкете',
-  'Я тут не просто так. Я тут с важной кошачьей экспертизой',
-];
-const HOVER_LINES = [
-  'Лапки убрали. Я ещё не подписывал согласие на поглаживание',
-  'Слишком быстро. Попробуйте ещё раз. С едой',
-  'Попытка контакта зафиксирована. Ухожу красиво',
-];
-const REASON_LINES = {
-  vacation:'Отпуск — это серьёзная причина. Давайте найдём ситтера',
-  trip:'Командировки случаются. Питомец должен жить спокойно',
-  workday:'Понятно. Значит нужен кто-то надёжный',
-  nomoves:'Некоторые звери предпочитают оставаться дома. Мудро',
-};
-const IDLE_LINES = [
-  'Это не я вращаюсь. Это Земля',
-  'Технически я здесь главный',
-  'Это мой стартап',
-  'Я вообще-то консультант по комфорту',
-  'Это не я вращаюсь. Это Вселенная вращается вокруг меня',
-];
-
-function noDot(v=''){ return String(v).replace(/\.$/, ''); }
-function pick(arr){ return arr[Math.floor(Math.random()*arr.length)] || ''; }
-function getStepQuips(f, step){
-  if(!f.petType) return START_LINES;
-  if(step===1) return PET_QUIPS[f.petType] || PET_QUIPS.other;
-  if(step===2){
-    const lines=[];
-    if(f.lastVet || f.vetName || f.vetPhone) lines.push('Так, клиника есть. Уже спокойнее даже мне','Вижу организованных людей. Редкость','Хорошо. Медицинская часть учтена','Отлично, у питомца есть план на случай форс-мажора');
-    if(!f.noMeds || (f.meds||[]).length) lines.push('О. Таблетки. Начинается игра «поймай меня сначала»','Лекарства отмечены. Я уже подозрительно смотрю','Интересно. Таблетка будет спрятана в еде?','Так. Медицинский режим. Я заранее не согласен, но продолжайте','Ну всё. Пошла серьёзная сюжетная линия');
-    return lines.length ? lines : ['Так, клиника есть. Уже спокойнее даже мне','Вижу организованных людей. Редкость'];
-  }
-  if(step===3){
-    const lines=[];
-    if(f.foodType || f.foodBrand || f.foodCustom) lines.push('Так. Корм записал. А ночные перекусы учтены?','Интересный пункт. Корм обычный… или тот, за который я вас прощу?','Отлично. Я так понимаю, дегустация входит в обязанности ситтера','Принято. Но если корм невкусный — я буду смотреть осуждающе','Корм принят. Я готов проверить качество','Так, питание пошло. Начинаю верить в эту операцию','Хорошо. Значит голодный бунт откладывается');
-    if(f.sleep) lines.push('Диван отмечен. Я разрешу ситтеру иногда там сидеть','Хороший диван? Мне нужен мягкий. И желательно ваш','Записал: диван. Отлично. Территория уже почти моя','Диван принят. Осталось уточнить — где будет спать ситтер','Диван — это важно. Без него я превращаюсь в очень недовольного кота','Отлично. Стратегическая точка отдыха обнаружена','Мягкий диван? Так, сайт начинает мне нравиться','Лежак — это достойно. Скромно, но с уважением к комфорту','Клетка? Понял. Значит безопасность и режим без импровизации');
-    if(f.petType==='dog' && f.walks) lines.push('Принято. У собаки будет карьера на свежем воздухе','Так. Гулять будем серьёзно','Прогулки есть. Радость официально утверждена','Хороший график. Я бы не пошёл, но поддерживаю');
-    if(f.habits) lines.push('Игры? Хорошо. Я обычно выигрываю','Играть — это отлично. Главное — чтобы вы не уставали','Игры отмечены. Приготовьтесь проигрывать');
-    return lines.length ? lines : PET_QUIPS[f.petType] || PET_QUIPS.other;
-  }
-  if(step===4) return ['Так… даты есть. Операция «спокойная поездка» начинается','План есть — уже хорошо. Я уважаю план и мягкие пледы','Даты записал. Найдём того, кто всё выдержит достойно'];
-  if(step===5) return ['Так… миска, диван, врач. Картина становится обнадёживающей','Я почти перестал придираться. Почти','Ну всё. Похоже, вы реально стараетесь'];
-  return PET_QUIPS[f.petType] || PET_QUIPS.other;
-}
 
 // ── Primitives ────────────────────────────────────────────────────────────────
 function Fld({ label, hint, err, req, children }) {
@@ -382,16 +338,16 @@ function PetGrid({ v, c, err }) {
 }
 
 const STEP_BG={1:'#FFD580',2:'#90E0EF',3:'#C3F0CA',4:'#FFCBA4',5:'#E8CFFF'};
-function PetMascot({ step, petType, tick, f }) {
+function PetMascot({ step, petType, tick }) {
   const em=PET_MAP[petType]; if(!em||em==='🐾') return null;
-  const quips=getStepQuips(f, step);
-  const msg=noDot(quips[tick%quips.length] || pick(quips) || '');
+  const quips=PET_QUIPS[petType]||PET_QUIPS.other;
+  const msg=quips[tick%quips.length];
   const bg=STEP_BG[step]||BORDER;
   return (
     <div style={{ position:'fixed',bottom:90,right:14,zIndex:60,display:'flex',flexDirection:'column',alignItems:'flex-end',gap:6,pointerEvents:'none' }}>
-      <div key={tick} style={{ background:'rgba(255,255,255,.88)',borderRadius:14,padding:'7px 11px',boxShadow:'0 4px 18px rgba(80,30,10,.14)',fontSize:11.8,fontWeight:700,color:DARK,maxWidth:165,textAlign:'center',border:`1.5px solid ${bg}`,animation:'popIn .35s ease',position:'relative',opacity:.92 }}>
+      <div key={tick} style={{ background:'#fff',borderRadius:14,padding:'8px 12px',boxShadow:'0 4px 18px rgba(80,30,10,.14)',fontSize:12.5,fontWeight:700,color:DARK,maxWidth:155,textAlign:'center',border:`1.5px solid ${bg}`,animation:'popIn .35s ease',position:'relative' }}>
         {msg}
-        <div style={{ position:'absolute',bottom:-7,right:16,width:13,height:13,background:'rgba(255,255,255,.88)',borderRight:`1.5px solid ${bg}`,borderBottom:`1.5px solid ${bg}`,transform:'rotate(45deg)' }} />
+        <div style={{ position:'absolute',bottom:-7,right:16,width:13,height:13,background:'#fff',borderRight:`1.5px solid ${bg}`,borderBottom:`1.5px solid ${bg}`,transform:'rotate(45deg)' }} />
       </div>
       <div style={{ fontSize:44,animation:PET_ANIM[petType]||'float 2s ease infinite',filter:'drop-shadow(0 4px 12px rgba(0,0,0,.14))' }}>{em}</div>
     </div>
@@ -480,7 +436,7 @@ function S3({ f, u }) {
       <Fld label='Время кормлений' hint='Нажмите нужное время'><TimeGrid v={f.feedTimes||[]} c={v=>u('feedTimes',v)} /></Fld>
       <Fld label='Питание'><FoodSection f={f} u={u} /></Fld>
       <Fld label='❌ Нельзя давать'><Inp v={f.forbidden||''} c={v=>u('forbidden',v)} ph='Молоко, кости, сладкое...' /></Fld>
-      {f.petType==='dog' && <Fld label={'Прогулок в день: '+(f.walks||2)}><Stepper v={f.walks||2} c={v=>u('walks',v)} min={1} max={6} /></Fld>}
+      <Fld label={'Прогулок в день: '+(f.walks||2)}><Stepper v={f.walks||2} c={v=>u('walks',v)} min={1} max={6} /></Fld>
       <Fld label='Место для сна'>
         <Chips v={f.sleep} c={v=>u('sleep',v)} opts={[{v:'bed',l:'🛏 Кровать'},{v:'couch',l:'🛋 Диван'},{v:'floor',l:'🪵 Лежак'},{v:'kennel',l:'🏠 Клетка'}]} />
       </Fld>
@@ -750,91 +706,289 @@ function SitterApply({ onBack, onError }) {
   );
 }
 
+
 function Landing({ onForm, onSitter, reviews }) {
-  const [speech,setSpeech]=useState(pick(START_LINES));
-  const [catNudge,setCatNudge]=useState({x:0,y:0,rot:0});
+  const [speech,setSpeech]=useState('Не обращайте внимания: это не я вращаюсь, а вселенная вокруг меня');
+  const [catShift,setCatShift]=useState({x:0,y:0});
   const [pushed,setPushed]=useState(null);
+  const [hoverLock,setHoverLock]=useState(false);
 
-  useEffect(()=>{
-    const idle=setInterval(()=>setSpeech(noDot(pick(IDLE_LINES))), 16000);
-    return ()=>clearInterval(idle);
-  },[]);
-
-  useEffect(()=>{
-    const timer=setInterval(()=>{
-      const index=Math.floor(Math.random()*4);
-      setPushed(index);
-      setTimeout(()=>setPushed(null), 700);
-    }, 9000);
-    return ()=>clearInterval(timer);
-  },[]);
+  const startPhrases=[
+    'Не обращайте внимания: это не я вращаюсь, а вселенная вокруг меня',
+    'Сделаем вместе с тобой тыгыдык по заявке и опишем питомца',
+    'Псс… давайте быстро сделаем тыгыдык по анкете',
+    'Я тут не просто так. Я тут с важной кошачьей экспертизой',
+  ];
+  const hoverPhrases=[
+    'Лапки убрали. Я ещё не подписывал согласие на поглаживание',
+    'Слишком быстро. Попробуйте ещё раз. С едой',
+    'Попытка контакта зафиксирована. Ухожу красиво',
+  ];
+  const idlePhrases=[
+    'Так… даты есть. Операция «спокойная поездка» начинается',
+    'План есть — уже хорошо. Я уважаю план и мягкие пледы',
+    'Я просто проверяю, всё ли тут надёжно',
+    'Это не я вращаюсь. Это Вселенная вращается вокруг меня',
+    'Технически я здесь главный',
+  ];
+  const pawPhrases=['Не мешайся под лапами','Эта причина уже понятна','Давайте держать порядок'];
 
   const reasons=[
-    {icon:'✈️', title:['Уезжаете','в отпуск'], key:'vacation'},
-    {icon:'💼', title:['Командировка','на несколько дней'], key:'trip'},
-    {icon:'🕘', title:['Долгий','рабочий день'], key:'workday'},
-    {icon:'🐾', title:['Питомец не любит','переезды'], key:'nomoves'},
+    { icon:'✈️', title:'Уезжаете\nв отпуск', phrase:'Отпуск — это серьёзная причина. Давайте найдём ситтера', pos:{ desktop:{top:8,left:1}, mobile:{top:6,left:2}}, anim:'driftA 7.5s ease-in-out infinite' },
+    { icon:'💼', title:'Командировка\nна несколько дней', phrase:'Командировки случаются. Питомец должен жить спокойно', pos:{ desktop:{top:10,right:0}, mobile:{top:12,right:2}}, anim:'driftB 8.5s ease-in-out infinite' },
+    { icon:'🕘', title:'Долгий\nрабочий день', phrase:'Понятно. Значит нужен кто-то надёжный', pos:{ desktop:{bottom:14,left:0}, mobile:{bottom:18,left:2}}, anim:'driftC 7.8s ease-in-out infinite' },
+    { icon:'🐾', title:'Питомец не любит\nпереезды', phrase:'Некоторые звери предпочитают оставаться дома. Мудро', pos:{ desktop:{bottom:12,right:0}, mobile:{bottom:24,right:2}}, anim:'driftD 9s ease-in-out infinite' },
   ];
 
-  function handleReason(reason){
-    setSpeech(noDot(REASON_LINES[reason.key]||pick(START_LINES)));
-    setTimeout(()=>onForm(),180);
+  useEffect(()=>{
+    const t=setTimeout(()=>setSpeech(pick(startPhrases)),500);
+    return ()=>clearTimeout(t);
+  },[]);
+
+  useEffect(()=>{
+    const t=setInterval(()=>setSpeech(pick(idlePhrases)),14000);
+    return ()=>clearInterval(t);
+  },[]);
+
+  useEffect(()=>{
+    const t=setInterval(()=>{
+      const idx=Math.floor(Math.random()*reasons.length);
+      setPushed(idx);
+      setSpeech(pick(pawPhrases));
+      setTimeout(()=>setPushed(null),900);
+    },10000);
+    return ()=>clearInterval(t);
+  },[]);
+
+  function catHover(){
+    if(hoverLock) return;
+    setHoverLock(true);
+    setSpeech(pick(hoverPhrases));
+    const x = Math.random()>0.5 ? 96 : -96;
+    const y = -34 - Math.round(Math.random()*18);
+    setCatShift({x,y});
+    setTimeout(()=>setCatShift({x:0,y:0}),650);
+    setTimeout(()=>setHoverLock(false),4200);
   }
 
-  function handleCatMove(e){
-    const card=e.currentTarget.getBoundingClientRect();
-    const x=e.clientX-card.left;
-    const y=e.clientY-card.top;
-    const dx=x<card.width/2?26:-26;
-    const dy=y<card.height/2?14:-14;
-    setCatNudge({x:dx,y:dy,rot:dx>0?8:-8});
-    setSpeech(noDot(pick(HOVER_LINES)));
-    setTimeout(()=>setCatNudge({x:0,y:0,rot:0}),650);
+  function reasonClick(r){
+    setSpeech(r.phrase);
+    onForm();
   }
 
-  const orbit=[
-    {top:'10%', left:'max(12px, 4vw)'},
-    {top:'15%', right:'max(12px, 4vw)'},
-    {bottom:'13%', left:'max(12px, 5vw)'},
-    {bottom:'12%', right:'max(12px, 5vw)'},
-  ];
+  const isMobile = typeof window !== 'undefined' ? window.innerWidth < 760 : false;
 
   return (
     <div style={{ background:CREAM }}>
-      <section style={{ padding:'34px 18px 40px',background:'linear-gradient(150deg,#FFF8F0 0%,#FFF4EB 40%,#F0F8F5 100%)',position:'relative',overflow:'hidden',minHeight:'min(100vh,760px)' }}>
-        <div style={{ maxWidth:980,margin:'0 auto',textAlign:'center',position:'relative',zIndex:2 }}>
-          <div style={{ display:'inline-flex',alignItems:'center',gap:8,background:'rgba(255,255,255,.9)',borderRadius:99,padding:'6px 16px',fontSize:12.5,fontWeight:700,color:P,border:`1px solid ${BORDER}`,marginBottom:14,boxShadow:'0 2px 16px rgba(232,107,79,.08)' }}>🐾 Надёжная забота о питомцах</div>
-          <h1 style={{ fontSize:'clamp(24px,4.2vw,38px)',fontWeight:900,color:DARK,lineHeight:1.15,margin:'0 0 8px' }}>Вы по делам или в путешествии?</h1>
-          <h2 style={{ fontSize:'clamp(18px,3.1vw,28px)',fontWeight:800,margin:'0 0 12px',lineHeight:1.22,background:grad,WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent' }}>Ваш питомец в надёжных и любящих руках 🐾</h2>
-          <p style={{ fontSize:'clamp(13.5px,1.75vw,16px)',color:MUTED,lineHeight:1.62,margin:'0 auto 16px',maxWidth:530 }}>Проверенные ситтеры с душой позаботятся о вашем любимце — дома у ситтера или у вас. Фото каждый день. Спокойствие круглосуточно</p>
+      <section style={{ padding:'34px 18px 42px',background:'linear-gradient(150deg,#FFF8F0 0%,#FFF4EB 38%,#F0F8F5 100%)',position:'relative',overflow:'hidden' }}>
+        <div style={{ maxWidth:1080,margin:'0 auto',textAlign:'center',position:'relative',zIndex:1,minHeight:isMobile?560:540 }}>
+          <div style={{ display:'inline-flex',alignItems:'center',gap:8,background:'rgba(255,255,255,.84)',borderRadius:99,padding:'6px 16px',fontSize:12.5,fontWeight:700,color:P,border:`1px solid ${BORDER}`,marginBottom:12,boxShadow:'0 2px 16px rgba(232,107,79,.09)' }}>🐾 Надёжная забота о питомцах</div>
+          <h1 style={{ fontSize:'clamp(22px,3.8vw,34px)',fontWeight:900,color:DARK,lineHeight:1.15,margin:'0 0 6px' }}>Вы по делам или в путешествии?</h1>
+          <h2 style={{ fontSize:'clamp(17px,3vw,26px)',fontWeight:800,margin:'0 0 10px',lineHeight:1.25,background:grad,WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent' }}>Ваш питомец в надёжных и любящих руках 🐾</h2>
+          <p style={{ fontSize:13.5,color:MUTED,lineHeight:1.6,margin:'0 auto 18px',maxWidth:560 }}>Проверенные ситтеры с душой позаботятся о вашем любимце — дома у ситтера или у вас. Фото каждый день. Спокойствие круглосуточно</p>
 
-          <div style={{ position:'relative',height:'min(56vh,430px)',maxHeight:430,minHeight:330,margin:'0 auto 10px',maxWidth:960 }}>
+          <div style={{ position:'relative',margin:'0 auto',maxWidth:960,minHeight:isMobile?420:430 }}>
             {reasons.map((r,i)=>{
-              const wobble=i===0?'float 7s ease-in-out infinite':i===1?'float 9s ease-in-out infinite':i===2?'float 8s ease-in-out infinite':'float 10s ease-in-out infinite';
+              const p = isMobile ? r.pos.mobile : r.pos.desktop;
+              const pushed = pushed===i;
               return (
-                <button key={r.key} onClick={()=>handleReason(r)} style={{ position:'absolute', ...orbit[i], width:'clamp(156px,18vw,188px)', minHeight:92, borderRadius:20, border:`1px solid ${BORDER}`, background:'rgba(255,255,255,.78)', backdropFilter:'blur(6px)', WebkitBackdropFilter:'blur(6px)', boxShadow:'0 8px 24px rgba(80,30,10,.07)', padding:'12px 14px', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:6, opacity:.78, transition:'transform .22s ease, opacity .22s ease', animation:wobble, transform:pushed===i?'translate(60px,-6px) rotate(8deg)':'' }} onMouseEnter={e=>{e.currentTarget.style.opacity='1';e.currentTarget.style.transform=(pushed===i?'translate(60px,-6px) rotate(8deg) ':'')+'scale(1.05)';}} onMouseLeave={e=>{e.currentTarget.style.opacity='.78';e.currentTarget.style.transform=pushed===i?'translate(60px,-6px) rotate(8deg)':'';}}>
-                  <div style={{ fontSize:26 }}>{r.icon}</div>
-                  <div style={{ fontSize:14,fontWeight:800,color:DARK,lineHeight:1.22 }}>{r.title.map((line,idx)=><div key={idx}>{line}</div>)}</div>
+                <button
+                  key={r.title}
+                  onClick={()=>reasonClick(r)}
+                  style={{
+                    position:'absolute',
+                    top:p.top!==undefined?`${p.top}%`:undefined,
+                    bottom:p.bottom!==undefined?`${p.bottom}%`:undefined,
+                    left:p.left!==undefined?`${p.left}%`:undefined,
+                    right:p.right!==undefined?`${p.right}%`:undefined,
+                    width:isMobile?150:190,
+                    minHeight:isMobile?84:96,
+                    borderRadius:20,
+                    border:`1px solid ${BORDER}`,
+                    background:'rgba(255,255,255,.78)',
+                    backdropFilter:'blur(6px)',
+                    WebkitBackdropFilter:'blur(6px)',
+                    boxShadow:'0 10px 28px rgba(50,30,18,.08)',
+                    padding:isMobile?'12px 12px':'14px 14px',
+                    cursor:'pointer',
+                    textAlign:'center',
+                    display:'flex',
+                    flexDirection:'column',
+                    alignItems:'center',
+                    justifyContent:'center',
+                    gap:6,
+                    opacity:.78,
+                    transition:'transform .6s ease, opacity .2s ease',
+                    transform:pushed?'translate(60px,-10px) rotate(8deg)':'none',
+                    animation:`reasonEnter .65s ease both ${i*.12}s, ${r.anim}`,
+                  }}
+                  onMouseEnter={(e)=>{e.currentTarget.style.opacity='1'; e.currentTarget.style.transform=pushed?'translate(60px,-10px) rotate(8deg) scale(1.04)':'scale(1.04)';}}
+                  onMouseLeave={(e)=>{e.currentTarget.style.opacity='.78'; e.currentTarget.style.transform=pushed?'translate(60px,-10px) rotate(8deg)':'none';}}
+                >
+                  <div style={{ fontSize:isMobile?24:28 }}>{r.icon}</div>
+                  <div style={{ whiteSpace:'pre-line',fontWeight:800,fontSize:isMobile?13:15,lineHeight:1.25,color:DARK }}>{r.title}</div>
                 </button>
               );
             })}
 
-            <div style={{ position:'absolute',left:'50%',top:'50%',transform:'translate(-50%,-50%)',width:'min(92vw,420px)',display:'flex',flexDirection:'column',alignItems:'center',zIndex:3 }}>
-              <div style={{ background:'rgba(255,255,255,.86)',border:`1px solid ${BORDER}`,borderRadius:16,padding:'10px 14px',fontSize:13.5,fontWeight:700,color:DARK,maxWidth:290,boxShadow:'0 4px 18px rgba(80,30,10,.10)',marginBottom:10,position:'relative',opacity:.92 }}>
-                {noDot(speech)}
-                <div style={{ position:'absolute',bottom:-6,left:'50%',marginLeft:-6,width:12,height:12,background:'rgba(255,255,255,.86)',borderRight:`1px solid ${BORDER}`,borderBottom:`1px solid ${BORDER}`,transform:'rotate(45deg)' }} />
+            <div style={{ position:'absolute',left:'50%',top:isMobile?150:146,transform:'translateX(-50%)',width:isMobile?320:430,zIndex:3 }}>
+              <div style={{ margin:'0 auto 6px',maxWidth:isMobile?250:300,background:'rgba(255,255,255,.86)',border:`1px solid ${BORDER}`,borderRadius:18,padding:isMobile?'9px 12px':'10px 14px',fontSize:isMobile?12.5:13.5,fontWeight:700,color:DARK,lineHeight:1.4,boxShadow:'0 10px 24px rgba(0,0,0,.06)' }}>
+                {speech}
               </div>
-              <img src='/oiia-cat.gif' alt='oiia cat' onMouseMove={handleCatMove} onMouseEnter={()=>setSpeech(noDot(pick(HOVER_LINES)))} style={{ width:'clamp(96px,13vw,124px)',height:'auto',marginBottom:12,transform:`translate(${catNudge.x}px,${catNudge.y}px) rotate(${catNudge.rot}deg)`,transition:'transform .18s ease',filter:'drop-shadow(0 8px 14px rgba(0,0,0,.12))' }} />
-              <button onClick={onForm} style={{ padding:'22px 46px',borderRadius:18,border:'none',background:grad,color:'#fff',fontWeight:900,fontSize:20,cursor:'pointer',boxShadow:'0 10px 30px rgba(232,107,79,.28)',animation:'glow 2.5s ease infinite' }}>Оставить заявку 🐾</button>
+              <div
+                onMouseEnter={catHover}
+                style={{ display:'flex',justifyContent:'center',marginBottom:8,cursor:'pointer' }}
+              >
+                <img
+                  src='/oiia-cat.gif'
+                  alt='OIIA cat'
+                  style={{
+                    width:isMobile?118:132,
+                    height:isMobile?118:132,
+                    objectFit:'contain',
+                    transform:`translate(${catShift.x}px,${catShift.y}px)`,
+                    transition:'transform .55s cubic-bezier(.2,.85,.3,1.2)',
+                    filter:'drop-shadow(0 8px 16px rgba(0,0,0,.16))',
+                  }}
+                />
+              </div>
+              <div style={{ display:'flex',justifyContent:'center' }}>
+                <button onClick={onForm} style={{ padding:isMobile?'18px 38px':'22px 46px',borderRadius:18,border:'none',background:grad,color:'#fff',fontWeight:900,fontSize:isMobile?17:20,cursor:'pointer',boxShadow:'0 10px 30px rgba(0,0,0,.15)' }}>Оставить заявку</button>
+              </div>
             </div>
 
-            <button onClick={onSitter} style={{ position:'absolute',right:18,bottom:6,padding:'12px 18px',borderRadius:14,border:`1px solid ${BORDER}`,background:'rgba(255,255,255,.86)',color:'#666',fontWeight:800,fontSize:14,cursor:'pointer',opacity:.74,zIndex:4 }}>Стать ситтером →</button>
+            <button onClick={onSitter} style={{ position:'absolute',right:isMobile?8:22,bottom:isMobile?6:18,padding:isMobile?'11px 14px':'12px 18px',borderRadius:14,border:`1px solid ${BORDER}`,background:'rgba(255,255,255,.82)',color:'#666',fontWeight:800,fontSize:isMobile?13:14,cursor:'pointer',opacity:.8,zIndex:4 }}>Стать ситтером →</button>
           </div>
         </div>
       </section>
-      <section style={{ padding:'52px 20px',background:'#fff',borderTop:`1px solid ${BORDER}` }}>
+      <HowItWorks />
+      <WhyUs />
+      <Reviews reviews={reviews} />
+      <SitterSection onApply={onSitter} />
+      <FAQ />
+    </div>
+  );
+}
+function SitterSection({ onApply }) {
+  return (
+    <section style={{ padding:'70px 20px',background:'linear-gradient(135deg,#F0FBF8,#E8F8FF)' }}>
+      <div style={{ maxWidth:960,margin:'0 auto' }}>
+        <div style={{ display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(300px,1fr))',gap:40,alignItems:'start' }}>
+          <div>
+            <div style={{ fontSize:12,fontWeight:800,color:SAGE,letterSpacing:1,textTransform:'uppercase',marginBottom:8 }}>Для ситтеров</div>
+            <h2 style={{ fontSize:24,fontWeight:900,color:DARK,margin:'0 0 14px',lineHeight:1.3 }}>Зарабатывайте, занимаясь любимым делом 🐾</h2>
+            <p style={{ fontSize:14,color:MUTED,lineHeight:1.75,marginBottom:20 }}>Присоединяйтесь к команде PawSitter — помогайте питомцам чувствовать себя как дома.</p>
+            <div style={{ display:'flex',gap:10,flexWrap:'wrap',marginBottom:22 }}>
+              {['🕒 Гибкий график','💰 Достойная оплата','🐶 Любимая работа','📈 Стабильный поток'].map(b=><div key={b} style={{ padding:'7px 12px',borderRadius:20,background:'#fff',border:`1px solid ${BORDER}`,fontSize:12.5,fontWeight:700,color:'#555' }}>{b}</div>)}
+            </div>
+            <button onClick={onApply} style={{ padding:'14px 28px',borderRadius:14,border:'none',background:sageGrad,color:'#fff',fontWeight:800,fontSize:15,cursor:'pointer',boxShadow:'0 4px 20px rgba(82,183,136,.35)' }}>Хочу стать ситтером →</button>
+          </div>
+          <div>
+            <h3 style={{ fontSize:14,fontWeight:800,color:DARK,marginBottom:12 }}>Что мы ценим:</h3>
+            {REQS.map((r,i)=>(
+              <div key={i} style={{ display:'flex',gap:11,alignItems:'flex-start',background:'#fff',borderRadius:13,padding:'11px 13px',border:`1px solid ${BORDER}`,marginBottom:8 }}>
+                <div style={{ fontSize:20,flexShrink:0 }}>{r.e}</div>
+                <div><div style={{ fontWeight:800,fontSize:13,color:DARK }}>{r.t}</div><div style={{ fontSize:12,color:MUTED,marginTop:2,lineHeight:1.5 }}>{r.d}</div></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SitterApply({ onBack, onError }) {
+  const [sf,setSf]=useState({name:'',phone:'',email:'',city:'',petTypes:[],services:[],experience:'',hasPets:'',hasVetEdu:'',motivation:'',refs:''});
+  const [sent,setSent]=useState(false);
+  const [busy,setBusy]=useState(false);
+  const [error,setError]=useState('');
+  function su(k,v){setSf(x=>({...x,[k]:v})); setError(''); onError('');}
+  async function submitSitter(){
+    if(!sf.name.trim()){ setError('Введите имя и фамилию'); return; }
+    if(String(sf.phone||'').replace(/\D/g,'').length<10){ setError('Введите телефон полностью'); return; }
+    try {
+      setBusy(true);
+      const res = await fetch('/.netlify/functions/submit-form', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ type:'sitter', payload: sf })
+      });
+      const data = await res.json().catch(()=>({}));
+      if(!res.ok || !data.ok) throw new Error(data.error || 'Не удалось отправить заявку');
+      setSent(true);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Не удалось отправить заявку';
+      setError(msg);
+      onError(msg);
+    } finally {
+      setBusy(false);
+    }
+  }
+  if(sent) return (
+    <div style={{ minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:`linear-gradient(135deg,#F0FBF8,${CREAM})`,padding:20 }}>
+      <Card style={{ maxWidth:380,width:'100%',textAlign:'center' }}>
+        <div style={{ fontSize:60 }}>🎉</div>
+        <h2 style={{ color:DARK,fontWeight:900 }}>Заявка отправлена!</h2>
+        <p style={{ color:MUTED,fontSize:14,lineHeight:1.7 }}>Рассмотрим анкету в течение 2–3 рабочих дней и свяжемся для интервью.</p>
+        <Btn onClick={onBack} variant='sage' style={{ width:'100%',marginTop:16 }}>← На главную</Btn>
+      </Card>
+    </div>
+  );
+  return (
+    <div style={{ minHeight:'100vh',background:`linear-gradient(135deg,#F0FBF8,${CREAM})`,padding:'20px 14px 60px' }}>
+      <div style={{ maxWidth:520,margin:'0 auto' }}>
+        <button onClick={onBack} style={{ border:'none',background:'none',color:MUTED,cursor:'pointer',fontSize:14,fontWeight:700,marginBottom:12,padding:0 }}>← На главную</button>
+        <Card>
+          <div style={{ textAlign:'center',marginBottom:22 }}>
+            <div style={{ fontSize:42 }}>🧑</div>
+            <h2 style={{ margin:'8px 0 5px',fontSize:20,color:DARK,fontWeight:900 }}>Стать ситтером PawSitter</h2>
+            <p style={{ color:MUTED,fontSize:13,margin:0 }}>Расскажите о себе — рады новым членам команды!</p>
+          </div>
+          <Fld label='Имя и фамилия' req><Inp v={sf.name} c={v=>su('name',v)} ph='Ваше имя' /></Fld>
+          <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:10 }}>
+            <Fld label='Телефон' req><PhoneInp v={sf.phone} c={v=>su('phone',v)} /></Fld>
+            <Fld label='Email'><Inp v={sf.email} c={v=>su('email',v)} ph='email@mail.ru' type='email' /></Fld>
+          </div>
+          <Fld label='Ваш город'><Inp v={sf.city} c={v=>su('city',v)} ph='Москва, СПб...' /></Fld>
+          <Fld label='С какими питомцами готовы работать?'><Chips v={sf.petTypes} c={v=>su('petTypes',v)} opts={PET_TYPES.map(t=>({v:t.v,l:t.e+' '+t.l}))} multi /></Fld>
+          <Fld label='Тип услуг'><Chips v={sf.services} c={v=>su('services',v)} opts={[{v:'boarding',l:'🏡 Передержка у себя'},{v:'inhome',l:'🚪 Выезд к хозяевам'}]} multi /></Fld>
+          <Fld label='Ваш опыт с животными'><Chips v={sf.experience} c={v=>su('experience',v)} opts={[{v:'none',l:'Начинающий'},{v:'some',l:'Есть опыт'},{v:'rich',l:'Богатый опыт'},{v:'pro',l:'Профессионал'}]} /></Fld>
+          <Fld label='Есть свои животные?'><Chips v={sf.hasPets} c={v=>su('hasPets',v)} opts={[{v:'yes',l:'Да'},{v:'no',l:'Нет'}]} /></Fld>
+          <Fld label='Ветеринарное образование?'><Chips v={sf.hasVetEdu} c={v=>su('hasVetEdu',v)} opts={[{v:'yes',l:'Есть'},{v:'partial',l:'Курсы'},{v:'no',l:'Нет'}]} /></Fld>
+          <Fld label='Почему хотите стать ситтером?'><Txt v={sf.motivation} c={v=>su('motivation',v)} ph='Люблю животных с детства...' rows={3} /></Fld>
+          <Fld label='Рекомендации'><Txt v={sf.refs} c={v=>su('refs',v)} ph='Имя, телефон или соцсети' rows={2} /></Fld>
+          {error && <div style={{ background:'#FFF1F0', color:'#B42318', border:'1px solid #FECACA', borderRadius:12, padding:'10px 12px', fontSize:13, lineHeight:1.5, marginBottom:10 }}>⚠️ {error}</div>}
+          <Btn onClick={submitSitter} disabled={busy} style={{ width:'100%',marginTop:6 }}>{busy?'Отправляем...':'Отправить заявку ситтера 🐾'}</Btn>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function Landing({ onForm, onSitter, reviews }) {
+  const floaters=[{e:'🐕',top:'8%',left:'5%',size:56,dur:3},{e:'🐈',top:'14%',right:'7%',size:50,dur:2.6},{e:'🐇',top:'70%',left:'3%',size:36,dur:3.5},{e:'🐹',top:'74%',right:'4%',size:32,dur:2.9},{e:'🦜',top:'44%',left:'1%',size:30,dur:4},{e:'🐾',top:'58%',right:'2%',size:38,dur:3.3}];
+  return (
+    <div style={{ background:CREAM }}>
+      <section style={{ padding:'80px 20px 70px',background:'linear-gradient(150deg,#FFF8F0 0%,#FFF4EB 40%,#F0F8F5 100%)',position:'relative',overflow:'hidden' }}>
+        {floaters.map((p,i)=><div key={i} style={{ position:'absolute',top:p.top,left:p.left,right:p.right,fontSize:p.size,opacity:.07,animation:`float ${p.dur}s ease ${i*.4}s infinite`,pointerEvents:'none',userSelect:'none' }}>{p.e}</div>)}
+        <div style={{ maxWidth:680,margin:'0 auto',textAlign:'center',position:'relative',zIndex:1 }}>
+          <div style={{ display:'inline-flex',alignItems:'center',gap:8,background:'#fff',borderRadius:99,padding:'6px 16px',fontSize:12.5,fontWeight:700,color:P,border:`1px solid ${BORDER}`,marginBottom:20,boxShadow:'0 2px 16px rgba(232,107,79,.12)' }}>🐾 Надёжная забота о питомцах</div>
+          <h1 style={{ fontSize:'clamp(26px,5.5vw,44px)',fontWeight:900,color:DARK,lineHeight:1.2,margin:'0 0 10px' }}>Вы по делам или в путешествии?</h1>
+          <h2 style={{ fontSize:'clamp(19px,4vw,31px)',fontWeight:800,margin:'0 0 18px',lineHeight:1.3,background:grad,WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent' }}>Ваш питомец в надёжных и любящих руках 🐾</h2>
+          <p style={{ fontSize:15,color:MUTED,lineHeight:1.75,marginBottom:30,maxWidth:500,margin:'0 auto 30px' }}>Проверенные ситтеры с душой позаботятся о вашем любимце — дома у ситтера или у вас. Фото каждый день. Спокойствие круглосуточно.</p>
+          <div style={{ display:'flex',gap:12,justifyContent:'center',flexWrap:'wrap',marginBottom:28 }}>
+            <button onClick={onForm} style={{ padding:'16px 34px',borderRadius:14,border:'none',background:grad,color:'#fff',fontWeight:800,fontSize:15,cursor:'pointer',boxShadow:'0 4px 24px rgba(232,107,79,.38)',animation:'glow 2.5s ease infinite' }}>Найти ситтера 🐾</button>
+            <button onClick={onSitter} style={{ padding:'16px 28px',borderRadius:14,border:`2px solid ${BORDER}`,background:'#fff',color:'#666',fontWeight:800,fontSize:15,cursor:'pointer' }}>Стать ситтером →</button>
+          </div>
+          <div style={{ display:'flex',gap:18,justifyContent:'center',flexWrap:'wrap' }}>
+            {[['🔒','Проверенные ситтеры'],['📸','Ежедневные фото и видео'],['🏥','Ветеринарная поддержка'],['⭐','Рейтинги и отзывы']].map(item=><div key={item[1]} style={{ display:'flex',alignItems:'center',gap:6,fontSize:12.5,color:MUTED,fontWeight:700 }}><span>{item[0]}</span>{item[1]}</div>)}
+          </div>
+        </div>
+      </section>
+      <section style={{ padding:'64px 20px',background:'#fff',borderTop:`1px solid ${BORDER}` }}>
         <div style={{ maxWidth:840,margin:'0 auto' }}>
-          <div style={{ textAlign:'center',marginBottom:34 }}>
+          <div style={{ textAlign:'center',marginBottom:40 }}>
             <h2 style={{ fontSize:24,fontWeight:900,color:DARK,margin:'0 0 6px' }}>Как это работает?</h2>
             <p style={{ color:MUTED,fontSize:14,margin:0 }}>Просто, прозрачно, с заботой</p>
           </div>
@@ -917,7 +1071,7 @@ function FormWizard({ step, f, u, e, onNext, onBack, onClear, submitError }) {
         </div>
         <p style={{ textAlign:'center',fontSize:11,color:'#DDD',marginTop:10 }}>Шаг {step} из 5 · 🔒 Конфиденциально</p>
       </div>
-      <PetMascot step={step} petType={f.petType} tick={tick} f={f} />
+      <PetMascot step={step} petType={f.petType} tick={tick} />
     </div>
   );
 }
@@ -988,7 +1142,7 @@ export default function App() {
     ];
 
     try {
-      const responsePromise = fetch('/api/submit-form', {
+      const responsePromise = fetch('/.netlify/functions/submit-form', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type:'owner', payload: f })
