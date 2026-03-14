@@ -649,7 +649,7 @@ function SitterApply({ onBack, onError }) {
     if(String(sf.phone||'').replace(/\D/g,'').length<10){ setError('Введите телефон полностью'); return; }
     try {
       setBusy(true);
-      const res = await fetch('/.netlify/functions/submit-form', {
+      const res = await fetch('/api/submit-form', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ type:'sitter', payload: sf })
@@ -909,7 +909,7 @@ function SitterApply({ onBack, onError }) {
     if(String(sf.phone||'').replace(/\D/g,'').length<10){ setError('Введите телефон полностью'); return; }
     try {
       setBusy(true);
-      const res = await fetch('/.netlify/functions/submit-form', {
+      const res = await fetch('/api/submit-form', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ type:'sitter', payload: sf })
@@ -1142,7 +1142,7 @@ export default function App() {
     ];
 
     try {
-      const responsePromise = fetch('/.netlify/functions/submit-form', {
+      const responsePromise = fetch('/api/submit-form', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type:'owner', payload: f })
