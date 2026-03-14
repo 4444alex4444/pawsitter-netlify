@@ -89,7 +89,7 @@ button{cursor:pointer}
 .review{padding:20px;background:#fff;border:1px solid var(--line);border-radius:24px}
 .review p{margin:0 0 14px;color:#5b514a;line-height:1.72;font-size:14px}
 .review small{color:var(--muted);font-weight:800}
-.form-shell{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:20px;align-items:start}
+.form-shell{max-width:760px;margin:0 auto;display:block}
 .form-card{padding:20px}
 .form-topbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
 .back{background:none;border:none;padding:0;color:var(--muted);font-weight:900}
@@ -134,6 +134,16 @@ button{cursor:pointer}
 .mascot .bubble{position:relative;background:#fff;padding:10px 12px;border-radius:16px;border:1px solid var(--line);font-size:13px;font-weight:800;color:#5d5249;line-height:1.6}
 .mascot .bubble:after{content:'';position:absolute;bottom:-7px;left:26px;width:12px;height:12px;background:#fff;border-right:1px solid var(--line);border-bottom:1px solid var(--line);transform:rotate(45deg)}
 .notice{padding:13px 14px;border-radius:18px;border:1px solid #f0c5b4;background:#fff6f2;color:#7b543e;font-size:13px;line-height:1.65}
+.mascot-floating{position:fixed;right:18px;bottom:18px;z-index:80;display:flex;flex-direction:column;align-items:flex-end;gap:8px;max-width:240px}
+.mascot-floating .bubble{position:relative;background:#fff;padding:12px 14px;border-radius:18px;border:1px solid var(--line);font-size:13px;font-weight:800;color:#5d5249;line-height:1.55;box-shadow:0 12px 32px rgba(73,38,11,.14)}
+.mascot-floating .bubble:after{content:'';position:absolute;bottom:-7px;right:24px;width:12px;height:12px;background:#fff;border-right:1px solid var(--line);border-bottom:1px solid var(--line);transform:rotate(45deg)}
+.mascot-floating .pet{font-size:62px;display:inline-block;filter:drop-shadow(0 8px 14px rgba(0,0,0,.18));user-select:none;transition:left .35s ease,top .35s ease,transform .25s ease;position:fixed;left:calc(var(--mx, 82) * 1vw);top:calc(var(--my, 68) * 1vh)}
+.mascot-floating .pet.cat{animation:spinMeme 2.2s linear infinite}
+.mascot-floating .pet.dog{animation:floaty 1.4s ease infinite}
+.mascot-floating .pet.bird{animation:bob 1.1s ease infinite}
+.mascot-floating .pet.rabbit{animation:floaty 1.2s ease infinite}
+.mascot-floating .pet.hamster{animation:spinCoin 1.4s linear infinite}
+.mascot-floating .pet.other{animation:bob 1.6s ease infinite}
 .success-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(180deg,#fff9f1 0%,#fff3eb 100%)}
 .success-card{max-width:760px;width:100%;padding:28px}
 .success-stage{position:relative;height:260px;border-radius:28px;background:linear-gradient(180deg,#fff 0%,#fff6ec 100%);border:1px solid var(--line);overflow:hidden;margin-bottom:18px}
@@ -166,6 +176,9 @@ button{cursor:pointer}
   .step-dot span{font-size:9px}
   .owner{left:16px}.sitter{right:14px}
   .pet-jump{left:74px;font-size:54px}
+  .mascot-floating{right:10px;bottom:10px;max-width:170px}
+  .mascot-floating .bubble{font-size:12px;padding:10px 12px}
+  .mascot-floating .pet{font-size:52px}
 }
 `;
 
@@ -408,41 +421,173 @@ function Landing({ onStart, onSitter }: { onStart: (cfg?: any) => void; onSitter
   );
 }
 
-function ScenarioHint({ form }: { form: any }) {
-  const text = useMemo(() => {
-    if (form.petType === 'cat') return 'Для кошек обычно важнее спокойные визиты, лоток, корм и ощущение, что их царство никто не захватил.';
-    if (form.petType === 'dog') return 'Для собак часто критичны прогулки, контакт и понятный ритм. Здесь это учтено, без цирка.';
-    if (form.petType === 'bird') return 'Для птиц важны корм, свежая вода, клетка и режим. Их нежность не любит импровизацию.';
-    if (form.petType === 'rabbit' || form.petType === 'hamster') return 'Для маленьких пушистых важны корм, чистота, тишина и привычная обстановка без лишнего стресса.';
-    return 'Заполните базовую информацию, а дальше форма мягко подстроится под ваш сценарий.';
-  }, [form.petType]);
 
-  const petClass = form.petType || 'other';
-  const pet = PET_MAP[form.petType] || '🐾';
-  const bubble =
-    form.petType === 'cat' ? 'Я вращаюсь по горизонтали, как и было завещано мемами 🌀' :
-    form.petType === 'dog' ? 'Я уже мысленно несу поводок и игрушку 🎾' :
-    form.petType === 'bird' ? 'Чик-чирик, главное без сквозняков и внезапных сюрпризов 🎶' :
-    form.petType === 'rabbit' ? 'Сено, покой и уважение к моим пушистым принципам 🥕' :
-    form.petType === 'hamster' ? 'Колесо крутится, жизнь прекрасна, а форма заполняется 🛞' :
-    'Я здесь как моральная поддержка и маленький UX-талисман 🐾';
+const DIALOGUES = {
+  defaultCat: [
+    'Не обращайте внимания. Это не я вращаюсь — это вселенная вокруг меня.',
+    'Кручусь-верчусь, уровень сервиса оценить хочу.',
+    'Всё нормально. Я просто в режиме красивой драматичности.',
+    'Мур. Продолжайте. Я уже слегка заинтересован.',
+    'Пока что выглядит прилично. Подозрительно, но прилично.'
+  ],
+  hoverCat: [
+    'Ой. Лапки убрали.',
+    'Вы меня не поймаете. Я тут на духовной скорости.',
+    'Погладить меня решили? Смело.',
+    'Слишком резкое проявление любви. Я перееду в другой угол.',
+    'Попытка контакта зафиксирована. Ухожу красиво.'
+  ],
+  cat: [
+    'Отлично. Один пушистый начальник зарегистрирован.',
+    'Хорошо. Значит в доме уже есть маленький домашний тиран.',
+    'А, кошка. Наконец-то серьёзная клиентура.',
+    'Принято. Готовьте диван, тишину и уважение к личным границам.',
+    'Кошка отмечена. Теперь всё официально.'
+  ],
+  dog: [
+    'СОБАКА DETECTED. Сейчас будет много радости и лап.',
+    'О, ну всё. Кто-то будет очень сильно любить всех подряд.',
+    'Принято. Запускаю режим «гулять, бегать, обожать».',
+    'Хорошо. Значит на сайте теперь официально есть энергия.',
+    'Собака отмечена. Мячик где?'
+  ],
+  bird: [
+    'Птица? Значит будильник теперь с крыльями.',
+    'Чик-чирик, важный клиент на связи.',
+    'Принято. Кто-то тут любит быть громким и красивым одновременно.',
+    'Хорошо. Пернатый режим активирован.',
+    'Птица отмечена. Готовим корм и уважение к вокалу.'
+  ],
+  rabbit: [
+    'Кролик. Срочно проверяем безопасность проводов.',
+    'Принято. Кто-то будет очень мило устраивать хаос.',
+    'Хорошо. Вижу впереди уши, скорость и исчезающую зелень.',
+    'Кролик отмечен. Морковь заносите аккуратно.',
+    'О, пушистая молния на минималках.'
+  ],
+  hamster: [
+    'Хомяк. Маленький, а логистика как у склада.',
+    'Принято. Колесо уже морально раскручивается.',
+    'Хорошо. Кто-то здесь очень серьёзно относится к семечкам.',
+    'Хомяк отмечен. Запасы еды под охраной.',
+    'Крошечный клиент, большие амбиции.'
+  ],
+  other: [
+    'Необычный клиент отмечен. Мне уже интересно.',
+    'Так. Здесь будет особый подход. Это я уважаю.',
+    'Хорошо. Кто-то идёт вне шаблонов.',
+    'Отлично. Индивидуальная история пошла.',
+    'Люблю, когда клиент с сюрпризом.'
+  ],
+  food: [
+    'Так. Корм записал. А ночные перекусы учтены?',
+    'Интересный пункт. Корм обычный… или тот, за который я вас прощу?',
+    'Отлично. Я так понимаю, дегустация входит в обязанности ситтера.',
+    'Принято. Но если корм невкусный — я буду смотреть осуждающе.',
+    'Хорошо. Значит голодный бунт откладывается.',
+    'Корм есть. Уже звучит как план.',
+    'Так, питание пошло. Начинаю верить в эту операцию.'
+  ],
+  couch: [
+    'Диван отмечен. Я разрешу ситтеру иногда там сидеть.',
+    'Хороший диван? Мне нужен мягкий. И желательно ваш.',
+    'Записал: диван. Отлично. Территория уже почти моя.',
+    'Диван принят. Осталось уточнить — где будет спать ситтер.',
+    'Диван — это важно. Без него я превращаюсь в очень недовольного кота.',
+    'Отлично. Стратегическая точка отдыха обнаружена.',
+    'Мягкий диван? Так, сайт начинает мне нравиться.'
+  ],
+  meds: [
+    'О. Таблетки. Начинается игра «поймай меня сначала».',
+    'Лекарства отмечены. Я уже подозрительно смотрю.',
+    'Интересно. Таблетка будет спрятана в еде?',
+    'Ну всё. Пошла серьёзная сюжетная линия.',
+    'Так. Медицинский режим. Я заранее не согласен, но продолжайте.'
+  ],
+  vet: [
+    'Так, клиника есть. Уже спокойнее даже мне.',
+    'Вижу организованных людей. Редкость.',
+    'Хорошо. Здесь, похоже, умеют помнить важное.',
+    'Записал врача. Это серьёзный подход, без шуток.',
+    'Очень хорошо. Паника не входит в план.'
+  ],
+  walks: [
+    'Прогулки есть. Радость официально утверждена.',
+    'Так. Гулять будем серьёзно.',
+    'Принято. У собаки будет карьера на свежем воздухе.',
+    'Хороший график. Я бы не пошёл, но поддерживаю.',
+    'Мячик морально готов.'
+  ],
+  dates: [
+    'Даты стоят. Операция «всё под контролем» началась.',
+    'Хорошо. План есть — уже красиво.',
+    'Так, календарь собран. Продолжаем без суеты.',
+    'Даты приняты. Мир становится чуть организованнее.',
+    'Отлично. Теперь это не хаос, а сценарий.'
+  ],
+  final: [
+    'Так… миска, диван, врач. Картина становится обнадёживающей.',
+    'Ну всё. Похоже, вы реально стараетесь.',
+    'Я почти перестал придираться. Почти.',
+    'Анкета выглядит солидно. Даже неловко шутить.',
+    'Выглядит очень даже прилично.'
+  ],
+  sent: [
+    'Ну всё. Заявка улетела. Можно выдыхать.',
+    'Хм. Этот человек выглядит достаточно тёплым.',
+    'Ладно. Я одобряю этого ситтера.',
+    'Красиво. Даже придраться пока не к чему.',
+    'Пусть теперь всё идёт по плану и по миске.'
+  ]
+};
+
+function pick<T>(arr:T[], seed:number){ return arr[seed % arr.length]; }
+
+function PetMascot({ form, finalMode = false }: { form: any; finalMode?: boolean }) {
+  const petType = form.petType || 'cat';
+  const pet = PET_MAP[petType] || '🐈';
+  const petClass = petType || 'cat';
+  const [seed, setSeed] = useState(0);
+  const [pos, setPos] = useState({ x: 82, y: 68 });
+  const [hoverMsg, setHoverMsg] = useState('');
+
+  useEffect(() => {
+    const t = setInterval(() => setSeed((s) => s + 1), 4200);
+    return () => clearInterval(t);
+  }, []);
+
+  const message = useMemo(() => {
+    if (hoverMsg) return hoverMsg;
+    if (finalMode) return pick(DIALOGUES.sent, seed);
+    if (!form.petType) return pick(DIALOGUES.defaultCat, seed);
+    if ((form.foodType || form.foodBrand || form.forbidden) && seed % 2 === 0) return pick(DIALOGUES.food, seed);
+    if (form.sleep === 'couch' || form.sleep === 'bed') return pick(DIALOGUES.couch, seed);
+    if ((form.meds && form.meds.length) || form.noMeds === false && form.chronic) return pick(DIALOGUES.meds, seed);
+    if (form.vetName || form.vetPhone) return pick(DIALOGUES.vet, seed);
+    if (form.petType === 'dog' && form.walks >= 2) return pick(DIALOGUES.walks, seed);
+    if (form.dateFrom || form.dateTo) return pick(DIALOGUES.dates, seed);
+    if (form.ownerName || form.ownerPhone) return pick(DIALOGUES.final, seed);
+    return pick((DIALOGUES as any)[petType] || DIALOGUES.other, seed);
+  }, [form, seed, hoverMsg, finalMode, petType]);
+
+  useEffect(() => {
+    if (!hoverMsg) return;
+    const t = setTimeout(() => setHoverMsg(''), 2600);
+    return () => clearTimeout(t);
+  }, [hoverMsg]);
+
+  function flee() {
+    const x = 12 + Math.random() * 72;
+    const y = 18 + Math.random() * 58;
+    setPos({ x, y });
+    if (!form.petType || petType === 'cat') setHoverMsg(pick(DIALOGUES.hoverCat, seed + 1));
+  }
 
   return (
-    <>
-      <Card className="side-card">
-        <h3>Подсказка по сценарию</h3>
-        <p>{text}</p>
-        <div className="fact-list">
-          <div className="fact"><strong>Что продаёт такой сайт</strong> Не “услугу”, а чувство спокойствия владельца.</div>
-          <div className="fact"><strong>Что важно показать</strong> Фото-отчёты, бережность, понятный процесс и ощущение “моего зверя реально понимают”.</div>
-          <div className="fact"><strong>Что делает форму умной</strong> Разные поля для собак, кошек, птиц и маленьких грызунов. Без тупых одинаковых блоков для всех.</div>
-        </div>
-      </Card>
-      <div className="mascot">
-        <div className={`pet ${petClass}`}>{pet}</div>
-        <div className="bubble">{bubble}</div>
-      </div>
-    </>
+    <div className="mascot-floating" style={{ ['--mx' as any]: pos.x, ['--my' as any]: pos.y }}>
+      <div className="bubble">{message}</div>
+      <div className={`pet ${petClass}`} onMouseEnter={flee}>{pet}</div>
+    </div>
   );
 }
 
@@ -498,7 +643,9 @@ function OwnerForm({ form, setForm, onBack, onSubmit, busy, submitError }: { for
 
   return (
     <section className="section" style={{ paddingTop: 18 }}>
-      <div className="container form-shell">
+      <div className="container">
+        <div className="form-shell">
+          <PetMascot form={form} />
         <Card className="form-card">
           <div className="form-topbar">
             <button className="back" type="button" onClick={onBack}>← На главную</button>
@@ -742,8 +889,6 @@ function OwnerForm({ form, setForm, onBack, onSubmit, busy, submitError }: { for
           </div>
         </Card>
 
-        <div>
-          <ScenarioHint form={form} />
         </div>
       </div>
     </section>
@@ -848,9 +993,10 @@ function SendingScreen({ form }: { form: any }) {
         </div>
         <div style={{ textAlign: 'center' }}>
           <h2 style={{ margin: '0 0 8px' }}>Питомец уже летит на ручки</h2>
-          <p style={{ margin: 0, color: 'var(--muted)', lineHeight: 1.8 }}>Заявка отправляется, а визуал честно говорит: контакт случился, забота включилась, все улыбаются. Так и должно быть.</p>
+          <p style={{ margin: 0, color: 'var(--muted)', lineHeight: 1.8 }}>Заявка отправляется. Сейчас всё произойдёт мягко и по плану — питомец уже летит в заботливые руки.</p>
         </div>
       </Card>
+      <PetMascot form={form} finalMode />
     </div>
   );
 }
@@ -879,7 +1025,7 @@ function Success({ form, reset }: { form: any; reset: () => void }) {
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 38, marginBottom: 2 }}>🎉</div>
           <h2 style={{ margin: '0 0 8px' }}>Заявка принята</h2>
-          <p style={{ margin: '0 auto 16px', color: 'var(--muted)', maxWidth: 560, lineHeight: 1.8 }}>Теперь это не просто форма. Это уже понятная история: вы сообщили контекст, мы получили заявку, и питомец в интерфейсе буквально прыгнул в заботливые руки. Да, мило. Да, работает.</p>
+          <p style={{ margin: '0 auto 16px', color: 'var(--muted)', maxWidth: 560, lineHeight: 1.8 }}>Мы получили заявку и скоро свяжемся с вами. А питомец уже морально устроился в заботливых руках.</p>
         </div>
         <div className="summary">
           <div className="item"><strong>Питомец</strong>{form.petName || '—'} · {PET_LABEL[form.petType] || '—'}</div>
@@ -891,6 +1037,7 @@ function Success({ form, reset }: { form: any; reset: () => void }) {
           <button className="btn btn-primary" type="button" onClick={reset}>Оставить ещё заявку 🐾</button>
         </div>
       </Card>
+      <PetMascot form={form} finalMode />
     </div>
   );
 }
