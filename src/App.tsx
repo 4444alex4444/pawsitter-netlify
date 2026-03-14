@@ -988,7 +988,7 @@ export default function App() {
     ];
 
     try {
-      const responsePromise = fetch('/.netlify/functions/submit-form', {
+      const responsePromise = fetch('/api/submit-form', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type:'owner', payload: f })
