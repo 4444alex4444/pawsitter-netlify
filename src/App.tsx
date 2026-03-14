@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect } from "react";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
@@ -43,38 +43,62 @@ const PET_ANIM = {
 };
 
 const PET_QUIPS = {
-  cat: ['Я тут хозяин 😌','Мур... это моё кресло 🛋','Я не сплю. Медитирую 🧘','Кручусь-верчусь 🌀'],
-  dog: ['ЗУМИИ ЗУМИИ!!! 🏃','Ты вернёшься?! 🥺','МЯЧИК?! 🎾','Гав-гав-люблю-тебя! ❤️'],
-  rabbit: ['*бинки-бинки* 🎉','Морковка где?! 🥕','Я счастлив вот так! 🌈','СВОБОДА!!! 🐇'],
-  hamster: ['бегубегубегу 💨','Я пробежал 10 км! 🏅','Колесо зовёт! 🌀','Быстрее! Ещё быстрее! ⚡'],
-  bird: ['Чик-чирик! Фью-фью 🦜','Я умею говорить! 🗣','Хорошая птичка! ✨','Свисти со мной! 🎵'],
-  other: ['Привет! Это я! 🐾','Я особенный! 🌟','Выбери меня! 💛','Я здесь, здесь! 🎊'],
+  cat: ['Отлично. Один пушистый начальник зарегистрирован','Кошка отмечена. Готовьте диван','Наконец-то. Кто-то признал, что кот — главный'],
+  dog: ['О, ну всё. Кто-то будет очень сильно любить всех подряд','Принято. Запускаю режим “гулять, бегать, обожать”','Собака. Значит в этой заявке будет много движения и счастья'],
+  rabbit: ['Кролик. Срочно проверяем безопасность проводов','Кролик. Значит будет много ушей, скорости и внезапных исчезновений'],
+  hamster: ['Хомяк. Маленький, а логистика как у склада','Хомяк. Кто-то здесь очень серьёзно относится к семечкам','Маленький клиент, большие амбиции'],
+  bird: ['Птица? Значит будильник теперь пернатый','Птица отмечена. Готовим корм и уважение к вокалу','Птица. Значит кто-то здесь любит быть громким и красивым одновременно'],
+  other: ['Я тут не просто так. Я тут с важной кошачьей экспертизой','Псс… давайте быстро сделаем тыгыдык по анкете','Это не я вращаюсь. Это Вселенная вращается вокруг меня'],
 };
-const LANDING_START = [
-  'Не обращайте внимания: это не я вращаюсь, а вселенная вокруг меня.',
-  'Сделаем вместе с тобой тыгыдык по заявке и опишем питомца.',
-  'Псс… давайте быстро сделаем тыгыдык по анкете.',
-  'Я тут не просто так. Я тут с важной кошачьей экспертизой.',
+
+const START_LINES = [
+  'Не обращайте внимания: это не я вращаюсь, а вселенная вокруг меня',
+  'Сделаем вместе с тобой тыгыдык по заявке и опишем питомца',
+  'Псс… давайте быстро сделаем тыгыдык по анкете',
+  'Я тут не просто так. Я тут с важной кошачьей экспертизой',
 ];
-const LANDING_HOVER = [
-  'Лапки убрали. Я ещё не подписывал согласие на поглаживание.',
-  'Слишком быстро. Попробуйте ещё раз. С едой.',
-  'Попытка контакта зафиксирована. Ухожу красиво.',
+const HOVER_LINES = [
+  'Лапки убрали. Я ещё не подписывал согласие на поглаживание',
+  'Слишком быстро. Попробуйте ещё раз. С едой',
+  'Попытка контакта зафиксирована. Ухожу красиво',
 ];
-const LANDING_IDLE = [
-  'Иногда лучший отпуск — это спокойный питомец дома.',
-  'Я просто проверяю, всё ли тут надёжно.',
-  'Кошки обычно не доверяют людям. Но этих ситтеров я проверил.',
-  'Это не я вращаюсь. Это Вселенная вращается вокруг меня.',
-  'Технически я здесь главный.',
-];
-const LANDING_REASONS = [
-  { key:'vacation', icon:'✈️', lines:['Уезжаете','в отпуск'], phrase:'Отпуск — серьёзная причина. Давайте найдём ситтера.' },
-  { key:'trip', icon:'💼', lines:['Командировка','на несколько дней'], phrase:'Командировки случаются. Питомец должен жить спокойно.' },
-  { key:'work', icon:'🕘', lines:['Долгий','рабочий день'], phrase:'Понимаю. Значит нужен кто-то надёжный.' },
-  { key:'nomoves', icon:'🐾', lines:['Питомец не любит','переезды'], phrase:'Некоторые звери предпочитают оставаться дома. Мудро.' },
+const REASON_LINES = {
+  vacation:'Отпуск — это серьёзная причина. Давайте найдём ситтера',
+  trip:'Командировки случаются. Питомец должен жить спокойно',
+  workday:'Понятно. Значит нужен кто-то надёжный',
+  nomoves:'Некоторые звери предпочитают оставаться дома. Мудро',
+};
+const IDLE_LINES = [
+  'Это не я вращаюсь. Это Земля',
+  'Технически я здесь главный',
+  'Это мой стартап',
+  'Я вообще-то консультант по комфорту',
+  'Это не я вращаюсь. Это Вселенная вращается вокруг меня',
 ];
 
+function noDot(v=''){ return String(v).replace(/\.$/, ''); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)] || ''; }
+function getStepQuips(f, step){
+  if(!f.petType) return START_LINES;
+  if(step===1) return PET_QUIPS[f.petType] || PET_QUIPS.other;
+  if(step===2){
+    const lines=[];
+    if(f.lastVet || f.vetName || f.vetPhone) lines.push('Так, клиника есть. Уже спокойнее даже мне','Вижу организованных людей. Редкость','Хорошо. Медицинская часть учтена','Отлично, у питомца есть план на случай форс-мажора');
+    if(!f.noMeds || (f.meds||[]).length) lines.push('О. Таблетки. Начинается игра «поймай меня сначала»','Лекарства отмечены. Я уже подозрительно смотрю','Интересно. Таблетка будет спрятана в еде?','Так. Медицинский режим. Я заранее не согласен, но продолжайте','Ну всё. Пошла серьёзная сюжетная линия');
+    return lines.length ? lines : ['Так, клиника есть. Уже спокойнее даже мне','Вижу организованных людей. Редкость'];
+  }
+  if(step===3){
+    const lines=[];
+    if(f.foodType || f.foodBrand || f.foodCustom) lines.push('Так. Корм записал. А ночные перекусы учтены?','Интересный пункт. Корм обычный… или тот, за который я вас прощу?','Отлично. Я так понимаю, дегустация входит в обязанности ситтера','Принято. Но если корм невкусный — я буду смотреть осуждающе','Корм принят. Я готов проверить качество','Так, питание пошло. Начинаю верить в эту операцию','Хорошо. Значит голодный бунт откладывается');
+    if(f.sleep) lines.push('Диван отмечен. Я разрешу ситтеру иногда там сидеть','Хороший диван? Мне нужен мягкий. И желательно ваш','Записал: диван. Отлично. Территория уже почти моя','Диван принят. Осталось уточнить — где будет спать ситтер','Диван — это важно. Без него я превращаюсь в очень недовольного кота','Отлично. Стратегическая точка отдыха обнаружена','Мягкий диван? Так, сайт начинает мне нравиться','Лежак — это достойно. Скромно, но с уважением к комфорту','Клетка? Понял. Значит безопасность и режим без импровизации');
+    if(f.petType==='dog' && f.walks) lines.push('Принято. У собаки будет карьера на свежем воздухе','Так. Гулять будем серьёзно','Прогулки есть. Радость официально утверждена','Хороший график. Я бы не пошёл, но поддерживаю');
+    if(f.habits) lines.push('Игры? Хорошо. Я обычно выигрываю','Играть — это отлично. Главное — чтобы вы не уставали','Игры отмечены. Приготовьтесь проигрывать');
+    return lines.length ? lines : PET_QUIPS[f.petType] || PET_QUIPS.other;
+  }
+  if(step===4) return ['Так… даты есть. Операция «спокойная поездка» начинается','План есть — уже хорошо. Я уважаю план и мягкие пледы','Даты записал. Найдём того, кто всё выдержит достойно'];
+  if(step===5) return ['Так… миска, диван, врач. Картина становится обнадёживающей','Я почти перестал придираться. Почти','Ну всё. Похоже, вы реально стараетесь'];
+  return PET_QUIPS[f.petType] || PET_QUIPS.other;
+}
 
 // ── Primitives ────────────────────────────────────────────────────────────────
 function Fld({ label, hint, err, req, children }) {
@@ -358,16 +382,16 @@ function PetGrid({ v, c, err }) {
 }
 
 const STEP_BG={1:'#FFD580',2:'#90E0EF',3:'#C3F0CA',4:'#FFCBA4',5:'#E8CFFF'};
-function PetMascot({ step, petType, tick }) {
+function PetMascot({ step, petType, tick, f }) {
   const em=PET_MAP[petType]; if(!em||em==='🐾') return null;
-  const quips=PET_QUIPS[petType]||PET_QUIPS.other;
-  const msg=quips[tick%quips.length];
+  const quips=getStepQuips(f, step);
+  const msg=noDot(quips[tick%quips.length] || pick(quips) || '');
   const bg=STEP_BG[step]||BORDER;
   return (
     <div style={{ position:'fixed',bottom:90,right:14,zIndex:60,display:'flex',flexDirection:'column',alignItems:'flex-end',gap:6,pointerEvents:'none' }}>
-      <div key={tick} style={{ background:'#fff',borderRadius:14,padding:'8px 12px',boxShadow:'0 4px 18px rgba(80,30,10,.14)',fontSize:12.5,fontWeight:700,color:DARK,maxWidth:155,textAlign:'center',border:`1.5px solid ${bg}`,animation:'popIn .35s ease',position:'relative' }}>
+      <div key={tick} style={{ background:'rgba(255,255,255,.88)',borderRadius:14,padding:'7px 11px',boxShadow:'0 4px 18px rgba(80,30,10,.14)',fontSize:11.8,fontWeight:700,color:DARK,maxWidth:165,textAlign:'center',border:`1.5px solid ${bg}`,animation:'popIn .35s ease',position:'relative',opacity:.92 }}>
         {msg}
-        <div style={{ position:'absolute',bottom:-7,right:16,width:13,height:13,background:'#fff',borderRight:`1.5px solid ${bg}`,borderBottom:`1.5px solid ${bg}`,transform:'rotate(45deg)' }} />
+        <div style={{ position:'absolute',bottom:-7,right:16,width:13,height:13,background:'rgba(255,255,255,.88)',borderRight:`1.5px solid ${bg}`,borderBottom:`1.5px solid ${bg}`,transform:'rotate(45deg)' }} />
       </div>
       <div style={{ fontSize:44,animation:PET_ANIM[petType]||'float 2s ease infinite',filter:'drop-shadow(0 4px 12px rgba(0,0,0,.14))' }}>{em}</div>
     </div>
@@ -456,7 +480,7 @@ function S3({ f, u }) {
       <Fld label='Время кормлений' hint='Нажмите нужное время'><TimeGrid v={f.feedTimes||[]} c={v=>u('feedTimes',v)} /></Fld>
       <Fld label='Питание'><FoodSection f={f} u={u} /></Fld>
       <Fld label='❌ Нельзя давать'><Inp v={f.forbidden||''} c={v=>u('forbidden',v)} ph='Молоко, кости, сладкое...' /></Fld>
-      {f.petType==='dog'&&<Fld label={'Прогулок в день: '+(f.walks||2)}><Stepper v={f.walks||2} c={v=>u('walks',v)} min={1} max={6} /></Fld>}
+      {f.petType==='dog' && <Fld label={'Прогулок в день: '+(f.walks||2)}><Stepper v={f.walks||2} c={v=>u('walks',v)} min={1} max={6} /></Fld>}
       <Fld label='Место для сна'>
         <Chips v={f.sleep} c={v=>u('sleep',v)} opts={[{v:'bed',l:'🛏 Кровать'},{v:'couch',l:'🛋 Диван'},{v:'floor',l:'🪵 Лежак'},{v:'kennel',l:'🏠 Клетка'}]} />
       </Fld>
@@ -726,118 +750,91 @@ function SitterApply({ onBack, onError }) {
   );
 }
 
-
 function Landing({ onForm, onSitter, reviews }) {
-  const [speech,setSpeech]=useState(()=>LANDING_START[Math.floor(Math.random()*LANDING_START.length)]);
-  const [tick,setTick]=useState(0);
-  const [look,setLook]=useState({x:0,y:0});
-  const [catKick,setCatKick]=useState(null);
-  const heroRef=useRef(null);
-  const isMobile = typeof window !== 'undefined' ? window.innerWidth < 700 : false;
-
-  const orbit = useMemo(()=>[
-    { rx: isMobile ? 138 : 228, ry: isMobile ? 92 : 144, phase:-1.9, bob:5, speed:0.00020 },
-    { rx: isMobile ? 146 : 252, ry: isMobile ? 82 : 128, phase:-0.35, bob:4, speed:0.00024 },
-    { rx: isMobile ? 140 : 236, ry: isMobile ? 104 : 154, phase:1.05, bob:6, speed:0.00018 },
-    { rx: isMobile ? 150 : 260, ry: isMobile ? 98 : 146, phase:2.35, bob:5, speed:0.00022 },
-  ], [isMobile]);
+  const [speech,setSpeech]=useState(pick(START_LINES));
+  const [catNudge,setCatNudge]=useState({x:0,y:0,rot:0});
+  const [pushed,setPushed]=useState(null);
 
   useEffect(()=>{
-    const t=setInterval(()=>setTick(x=>x+1), 40);
-    return ()=>clearInterval(t);
-  },[]);
-
-  useEffect(()=>{
-    const idle=setInterval(()=>setSpeech(prev=>{
-      const next=LANDING_IDLE[Math.floor(Math.random()*LANDING_IDLE.length)];
-      return next===prev ? LANDING_IDLE[(LANDING_IDLE.indexOf(next)+1)%LANDING_IDLE.length] : next;
-    }), 14000);
+    const idle=setInterval(()=>setSpeech(noDot(pick(IDLE_LINES))), 16000);
     return ()=>clearInterval(idle);
   },[]);
 
   useEffect(()=>{
-    const pusher=setInterval(()=>{
-      const idx=Math.floor(Math.random()*LANDING_REASONS.length);
-      setCatKick(idx);
-      setTimeout(()=>setCatKick(null), 650);
+    const timer=setInterval(()=>{
+      const index=Math.floor(Math.random()*4);
+      setPushed(index);
+      setTimeout(()=>setPushed(null), 700);
     }, 9000);
-    return ()=>clearInterval(pusher);
+    return ()=>clearInterval(timer);
   },[]);
 
-  useEffect(()=>{
-    const onMove=(e)=>{
-      const rect=heroRef.current?.getBoundingClientRect();
-      if(!rect) return;
-      const cx=rect.left+rect.width/2;
-      const cy=rect.top+rect.height/2+40;
-      const dx=(e.clientX-cx)/rect.width;
-      const dy=(e.clientY-cy)/rect.height;
-      setLook({ x: Math.max(-8,Math.min(8,dx*18)), y: Math.max(-5,Math.min(5,dy*12)) });
-    };
-    window.addEventListener('mousemove', onMove);
-    return ()=>window.removeEventListener('mousemove', onMove);
-  },[]);
+  const reasons=[
+    {icon:'✈️', title:['Уезжаете','в отпуск'], key:'vacation'},
+    {icon:'💼', title:['Командировка','на несколько дней'], key:'trip'},
+    {icon:'🕘', title:['Долгий','рабочий день'], key:'workday'},
+    {icon:'🐾', title:['Питомец не любит','переезды'], key:'nomoves'},
+  ];
 
-  const spinCycle = (tick*40)%4300;
-  const spinDeg = spinCycle < 1150 ? 0 : ((spinCycle-1150)/2400)*540;
-  const catTransform = `translate(${look.x}px, ${look.y}px) rotate(${spinDeg}deg)`;
+  function handleReason(reason){
+    setSpeech(noDot(REASON_LINES[reason.key]||pick(START_LINES)));
+    setTimeout(()=>onForm(),180);
+  }
 
-  const cardPos = (i)=>{
-    const c=orbit[i];
-    const t=Date.now();
-    const a=t*c.speed + c.phase;
-    const x=Math.cos(a)*c.rx + (catKick===i ? 60 : 0);
-    const y=Math.sin(a)*c.ry + Math.sin(t*0.0014+i)*c.bob;
-    return {
-      left:'50%',
-      top:'56%',
-      transform:`translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) ${catKick===i ? 'rotate(8deg)' : ''}`,
-    };
-  };
+  function handleCatMove(e){
+    const card=e.currentTarget.getBoundingClientRect();
+    const x=e.clientX-card.left;
+    const y=e.clientY-card.top;
+    const dx=x<card.width/2?26:-26;
+    const dy=y<card.height/2?14:-14;
+    setCatNudge({x:dx,y:dy,rot:dx>0?8:-8});
+    setSpeech(noDot(pick(HOVER_LINES)));
+    setTimeout(()=>setCatNudge({x:0,y:0,rot:0}),650);
+  }
 
-  const floaters=[{e:'🐕',top:'7%',left:'4%',size:52,dur:3.2},{e:'🐈',top:'13%',right:'6%',size:46,dur:2.8},{e:'🐇',top:'73%',left:'3%',size:34,dur:3.5},{e:'🐹',top:'75%',right:'4%',size:30,dur:2.9},{e:'🦜',top:'45%',left:'1%',size:28,dur:4.1},{e:'🐾',top:'57%',right:'2%',size:34,dur:3.4}];
+  const orbit=[
+    {top:'10%', left:'max(12px, 4vw)'},
+    {top:'15%', right:'max(12px, 4vw)'},
+    {bottom:'13%', left:'max(12px, 5vw)'},
+    {bottom:'12%', right:'max(12px, 5vw)'},
+  ];
 
   return (
     <div style={{ background:CREAM }}>
-      <section ref={heroRef} style={{ padding:isMobile?'36px 14px 22px':'44px 16px 32px',background:'linear-gradient(150deg,#FFF8F0 0%,#FFF4EB 40%,#F0F8F5 100%)',position:'relative',overflow:'hidden',minHeight:isMobile?'92svh':'100svh' }}>
-        {floaters.map((p,i)=><div key={i} style={{ position:'absolute',top:p.top,left:p.left,right:p.right,fontSize:p.size,opacity:.06,animation:`float ${p.dur}s ease ${i*.4}s infinite`,pointerEvents:'none',userSelect:'none' }}>{p.e}</div>)}
-        <div style={{ maxWidth:860,margin:'0 auto',textAlign:'center',position:'relative',zIndex:1 }}>
-          <div style={{ display:'inline-flex',alignItems:'center',gap:8,background:'rgba(255,255,255,.84)',backdropFilter:'blur(6px)',borderRadius:99,padding:'7px 16px',fontSize:12.5,fontWeight:700,color:P,border:`1px solid ${BORDER}`,marginBottom:14,boxShadow:'0 2px 16px rgba(232,107,79,.12)' }}>🐾 Надёжная забота о питомцах</div>
-          <h1 style={{ fontSize:isMobile?'clamp(22px,7vw,34px)':'clamp(25px,5.3vw,56px)',fontWeight:900,color:DARK,lineHeight:1.12,margin:'0 0 10px',maxWidth:760,marginInline:'auto' }}>Ваш питомец в надёжных и любящих руках</h1>
-          <p style={{ fontSize:isMobile?'clamp(13px,3.8vw,16px)':'clamp(15px,3.7vw,21px)',color:MUTED,lineHeight:1.65,maxWidth:680,margin:'0 auto 16px' }}>Проверенные ситтеры с душой позаботятся о вашем любимце — дома у ситтера или у вас. Фото каждый день. Спокойствие круглосуточно.</p>
+      <section style={{ padding:'34px 18px 40px',background:'linear-gradient(150deg,#FFF8F0 0%,#FFF4EB 40%,#F0F8F5 100%)',position:'relative',overflow:'hidden',minHeight:'min(100vh,760px)' }}>
+        <div style={{ maxWidth:980,margin:'0 auto',textAlign:'center',position:'relative',zIndex:2 }}>
+          <div style={{ display:'inline-flex',alignItems:'center',gap:8,background:'rgba(255,255,255,.9)',borderRadius:99,padding:'6px 16px',fontSize:12.5,fontWeight:700,color:P,border:`1px solid ${BORDER}`,marginBottom:14,boxShadow:'0 2px 16px rgba(232,107,79,.08)' }}>🐾 Надёжная забота о питомцах</div>
+          <h1 style={{ fontSize:'clamp(24px,4.2vw,38px)',fontWeight:900,color:DARK,lineHeight:1.15,margin:'0 0 8px' }}>Вы по делам или в путешествии?</h1>
+          <h2 style={{ fontSize:'clamp(18px,3.1vw,28px)',fontWeight:800,margin:'0 0 12px',lineHeight:1.22,background:grad,WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent' }}>Ваш питомец в надёжных и любящих руках 🐾</h2>
+          <p style={{ fontSize:'clamp(13.5px,1.75vw,16px)',color:MUTED,lineHeight:1.62,margin:'0 auto 16px',maxWidth:530 }}>Проверенные ситтеры с душой позаботятся о вашем любимце — дома у ситтера или у вас. Фото каждый день. Спокойствие круглосуточно</p>
 
-          <div style={{ position:'relative',maxWidth:760,margin:'0 auto',height:isMobile ? 290 : 440 }}>
-            {LANDING_REASONS.map((r,i)=>(
-              <button key={r.key} onClick={()=>{setSpeech(r.phrase);onForm();}}
-                style={{ position:'absolute',...cardPos(i), width: isMobile ? 130 : 170, minHeight:isMobile ? 86 : 102, padding:'14px 12px', borderRadius:22, border:`1px solid rgba(232,221,210,.9)`, background:'rgba(255,255,255,.78)', backdropFilter:'blur(6px)', WebkitBackdropFilter:'blur(6px)', boxShadow:'0 10px 28px rgba(58,35,24,.08)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:6, color:DARK, fontWeight:800, fontSize:isMobile ? 13.5 : 16, lineHeight:1.22, cursor:'pointer', opacity:.78, transition:'transform .25s ease, opacity .25s ease' }}
-                onMouseEnter={e=>{e.currentTarget.style.opacity='1';}}
-                onMouseLeave={e=>{e.currentTarget.style.opacity='0.78';}}
-              >
-                <div style={{ fontSize:isMobile ? 22 : 25 }}>{r.icon}</div>
-                <div>{r.lines.map((line,idx)=><div key={idx}>{line}</div>)}</div>
-              </button>
-            ))}
+          <div style={{ position:'relative',height:'min(56vh,430px)',maxHeight:430,minHeight:330,margin:'0 auto 10px',maxWidth:960 }}>
+            {reasons.map((r,i)=>{
+              const wobble=i===0?'float 7s ease-in-out infinite':i===1?'float 9s ease-in-out infinite':i===2?'float 8s ease-in-out infinite':'float 10s ease-in-out infinite';
+              return (
+                <button key={r.key} onClick={()=>handleReason(r)} style={{ position:'absolute', ...orbit[i], width:'clamp(156px,18vw,188px)', minHeight:92, borderRadius:20, border:`1px solid ${BORDER}`, background:'rgba(255,255,255,.78)', backdropFilter:'blur(6px)', WebkitBackdropFilter:'blur(6px)', boxShadow:'0 8px 24px rgba(80,30,10,.07)', padding:'12px 14px', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:6, opacity:.78, transition:'transform .22s ease, opacity .22s ease', animation:wobble, transform:pushed===i?'translate(60px,-6px) rotate(8deg)':'' }} onMouseEnter={e=>{e.currentTarget.style.opacity='1';e.currentTarget.style.transform=(pushed===i?'translate(60px,-6px) rotate(8deg) ':'')+'scale(1.05)';}} onMouseLeave={e=>{e.currentTarget.style.opacity='.78';e.currentTarget.style.transform=pushed===i?'translate(60px,-6px) rotate(8deg)':'';}}>
+                  <div style={{ fontSize:26 }}>{r.icon}</div>
+                  <div style={{ fontSize:14,fontWeight:800,color:DARK,lineHeight:1.22 }}>{r.title.map((line,idx)=><div key={idx}>{line}</div>)}</div>
+                </button>
+              );
+            })}
 
-            <div style={{ position:'absolute',left:'50%',top:'54%',transform:'translate(-50%,-50%)',width:'min(100%, 440px)',display:'flex',flexDirection:'column',alignItems:'center',zIndex:5 }}>
-              <div style={{ background:'rgba(255,255,255,.76)',border:`1px solid ${BORDER}`,borderRadius:22,padding:isMobile?'10px 14px':'12px 16px',boxShadow:'0 10px 26px rgba(56,34,22,.08)',fontSize:isMobile ? 13.5 : 15.5,fontWeight:800,lineHeight:1.38,color:'rgba(45,32,21,.82)',maxWidth: isMobile ? 320 : 390, marginBottom:8 }}>
-                {speech}
+            <div style={{ position:'absolute',left:'50%',top:'50%',transform:'translate(-50%,-50%)',width:'min(92vw,420px)',display:'flex',flexDirection:'column',alignItems:'center',zIndex:3 }}>
+              <div style={{ background:'rgba(255,255,255,.86)',border:`1px solid ${BORDER}`,borderRadius:16,padding:'10px 14px',fontSize:13.5,fontWeight:700,color:DARK,maxWidth:290,boxShadow:'0 4px 18px rgba(80,30,10,.10)',marginBottom:10,position:'relative',opacity:.92 }}>
+                {noDot(speech)}
+                <div style={{ position:'absolute',bottom:-6,left:'50%',marginLeft:-6,width:12,height:12,background:'rgba(255,255,255,.86)',borderRight:`1px solid ${BORDER}`,borderBottom:`1px solid ${BORDER}`,transform:'rotate(45deg)' }} />
               </div>
-              <img src='/oiia-cat.gif' alt='OIIA cat' onMouseEnter={()=>setSpeech(LANDING_HOVER[Math.floor(Math.random()*LANDING_HOVER.length)])}
-                style={{ width: isMobile ? 88 : 122, height:'auto', marginBottom:10, transform:catTransform, transformOrigin:'center center', transition:'transform .08s linear', filter:'drop-shadow(0 8px 14px rgba(0,0,0,.14))', userSelect:'none' }} />
-              <button onClick={()=>onForm()} style={{ padding: isMobile ? '18px 34px' : '22px 46px',borderRadius:18,border:'none',background:grad,color:'#fff',fontWeight:900,fontSize:isMobile ? 18 : 20,cursor:'pointer',boxShadow:'0 10px 30px rgba(0,0,0,.15)',animation:'glow 2.5s ease infinite' }}>Оставить заявку</button>
+              <img src='/oiia-cat.gif' alt='oiia cat' onMouseMove={handleCatMove} onMouseEnter={()=>setSpeech(noDot(pick(HOVER_LINES)))} style={{ width:'clamp(96px,13vw,124px)',height:'auto',marginBottom:12,transform:`translate(${catNudge.x}px,${catNudge.y}px) rotate(${catNudge.rot}deg)`,transition:'transform .18s ease',filter:'drop-shadow(0 8px 14px rgba(0,0,0,.12))' }} />
+              <button onClick={onForm} style={{ padding:'22px 46px',borderRadius:18,border:'none',background:grad,color:'#fff',fontWeight:900,fontSize:20,cursor:'pointer',boxShadow:'0 10px 30px rgba(232,107,79,.28)',animation:'glow 2.5s ease infinite' }}>Оставить заявку 🐾</button>
             </div>
 
-            <button onClick={onSitter} style={{ position:'absolute',right: isMobile ? 6 : 12,bottom: isMobile ? 4 : 8,padding:'14px 20px',borderRadius:16,border:`1px solid ${BORDER}`,background:'rgba(255,255,255,.88)',backdropFilter:'blur(6px)',color:'#666',fontWeight:800,fontSize:15,cursor:'pointer',opacity:.82,zIndex:6 }}>Стать ситтером →</button>
-          </div>
-
-          <div style={{ display:'flex',gap:16,justifyContent:'center',flexWrap:'wrap',marginTop:8 }}>
-            {[['🔒','Проверенные ситтеры'],['📸','Ежедневные фото и видео'],['🏥','Ветеринарная поддержка'],['⭐','Рейтинги и отзывы']].map(item=><div key={item[1]} style={{ display:'flex',alignItems:'center',gap:6,fontSize:12.5,color:MUTED,fontWeight:700 }}><span>{item[0]}</span>{item[1]}</div>)}
+            <button onClick={onSitter} style={{ position:'absolute',right:18,bottom:6,padding:'12px 18px',borderRadius:14,border:`1px solid ${BORDER}`,background:'rgba(255,255,255,.86)',color:'#666',fontWeight:800,fontSize:14,cursor:'pointer',opacity:.74,zIndex:4 }}>Стать ситтером →</button>
           </div>
         </div>
       </section>
-      <section style={{ padding:'64px 20px',background:'#fff',borderTop:`1px solid ${BORDER}` }}>
+      <section style={{ padding:'52px 20px',background:'#fff',borderTop:`1px solid ${BORDER}` }}>
         <div style={{ maxWidth:840,margin:'0 auto' }}>
-          <div style={{ textAlign:'center',marginBottom:40 }}>
+          <div style={{ textAlign:'center',marginBottom:34 }}>
             <h2 style={{ fontSize:24,fontWeight:900,color:DARK,margin:'0 0 6px' }}>Как это работает?</h2>
             <p style={{ color:MUTED,fontSize:14,margin:0 }}>Просто, прозрачно, с заботой</p>
           </div>
@@ -862,7 +859,6 @@ function Landing({ onForm, onSitter, reviews }) {
     </div>
   );
 }
-
 
 function WarnModal({ missing, onFill, onSkip }) {
   return (
@@ -921,7 +917,7 @@ function FormWizard({ step, f, u, e, onNext, onBack, onClear, submitError }) {
         </div>
         <p style={{ textAlign:'center',fontSize:11,color:'#DDD',marginTop:10 }}>Шаг {step} из 5 · 🔒 Конфиденциально</p>
       </div>
-      <PetMascot step={step} petType={f.petType} tick={tick} />
+      <PetMascot step={step} petType={f.petType} tick={tick} f={f} />
     </div>
   );
 }
