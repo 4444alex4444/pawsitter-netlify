@@ -1068,6 +1068,7 @@ function Landing({ onForm, onSitter, reviews }) {
                   padding:'22px 46px',
                   borderRadius:18,
                   border:'none',
+                  marginTop: 60,
                   background:grad,
                   color:'#fff',
                   fontWeight:900,
