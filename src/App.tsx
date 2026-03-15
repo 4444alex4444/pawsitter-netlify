@@ -777,8 +777,8 @@ function Landing({ onForm, onSitter, reviews }) {
       const index=Math.floor(Math.random()*4);
       setPushed(index);
       setSpeech(noDot(pick([
-        'Давайте держать орбиту чистой',
-        'Слишком близко летает'
+        'Псс… давайте быстро сделаем тыгыдык по анкете',
+        'Это не я вращаюсь. Это Вселенная вращается вокруг меня'
       ])));
       setTimeout(()=>setPushed(null), 900);
     }, 9000);
