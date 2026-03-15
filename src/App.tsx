@@ -1026,27 +1026,7 @@ function Landing({ onForm, onSitter, reviews }) {
                 Оставить заявку 🐾
               </button>
             </div>
-
-            <button
-              onClick={onSitter}
-              style={{
-                position:'absolute',
-                right:18,
-                bottom:8,
-                padding:'12px 18px',
-                borderRadius:14,
-                border:`1px solid ${BORDER}`,
-                background:'rgba(255,255,255,.88)',
-                color:'#666',
-                fontWeight:800,
-                fontSize:14,
-                cursor:'pointer',
-                opacity:.78,
-                zIndex:4
-              }}
-            >
-              Стать ситтером →
-            </button>
+            
           </div>
         </div>
       </section>
