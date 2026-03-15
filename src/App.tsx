@@ -794,7 +794,7 @@ function Landing({ onForm, onSitter, reviews }) {
 
   function handleReason(reason){
     setSpeech(noDot(REASON_LINES[reason.key]||pick(START_LINES)));
-    setTimeout(()=>onForm(),180);
+    setTimeout(()=>onForm(),1000);
   }
 
   function handleCatMove(e){
