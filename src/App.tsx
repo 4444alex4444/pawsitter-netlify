@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
@@ -18,6 +18,7 @@ body,input,textarea,select,button{font-family:'Nunito',system-ui,sans-serif}
 @keyframes birdBob{0%,100%{transform:translateY(0) rotate(0)}30%{transform:translateY(-7px) rotate(-14deg)}65%{transform:translateY(-4px) rotate(12deg)}}
 @keyframes pawPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.25) rotate(18deg)}}
 @keyframes sitterArm{0%,100%{transform:rotate(0)}50%{transform:rotate(-28deg) translateY(10px)}}
+@keyframes orbitRise{0%{opacity:0;transform:translateY(42vh) scale(.86)}70%{opacity:.88}100%{opacity:1;transform:translateY(0) scale(1)}}
 .fu{animation:fadeUp .38s ease both}
 .fi{animation:fadeIn .3s ease both}
 input[type=range]{-webkit-appearance:none;width:100%;height:5px;border-radius:99px;outline:none;cursor:pointer}
@@ -693,7 +694,7 @@ function SitterApply({ onBack, onError }) {
     if(String(sf.phone||'').replace(/\D/g,'').length<10){ setError('Введите телефон полностью'); return; }
     try {
       setBusy(true);
-      const res = await fetch('/.netlify/functions/submit-form', {
+      const res = await fetch('/api/submit-form', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ type:'sitter', payload: sf })
@@ -751,12 +752,23 @@ function SitterApply({ onBack, onError }) {
 }
 
 function Landing({ onForm, onSitter, reviews }) {
-  const [speech,setSpeech]=useState(pick(START_LINES));
+  const [speech,setSpeech]=useState(noDot(pick(START_LINES)));
   const [catNudge,setCatNudge]=useState({x:0,y:0,rot:0});
   const [pushed,setPushed]=useState(null);
+  const [entered,setEntered]=useState(false);
+  const hoverCooldown=useRef(0);
 
   useEffect(()=>{
-    const idle=setInterval(()=>setSpeech(noDot(pick(IDLE_LINES))), 16000);
+    const t=setTimeout(()=>setEntered(true),120);
+    return ()=>clearTimeout(t);
+  },[]);
+
+  useEffect(()=>{
+    const idle=setInterval(()=>{
+      const now=Date.now();
+      if(now-hoverCooldown.current<2800) return;
+      setSpeech(noDot(pick(IDLE_LINES)));
+    }, 16000);
     return ()=>clearInterval(idle);
   },[]);
 
@@ -764,7 +776,13 @@ function Landing({ onForm, onSitter, reviews }) {
     const timer=setInterval(()=>{
       const index=Math.floor(Math.random()*4);
       setPushed(index);
-      setTimeout(()=>setPushed(null), 700);
+      setSpeech(noDot(pick([
+        'Не мешайся под лапами',
+        'Эта причина уже понятна',
+        'Давайте держать орбиту чистой',
+        'Слишком близко летает'
+      ])));
+      setTimeout(()=>setPushed(null), 900);
     }, 9000);
     return ()=>clearInterval(timer);
   },[]);
@@ -782,56 +800,257 @@ function Landing({ onForm, onSitter, reviews }) {
   }
 
   function handleCatMove(e){
+    const now=Date.now();
     const card=e.currentTarget.getBoundingClientRect();
     const x=e.clientX-card.left;
     const y=e.clientY-card.top;
-    const dx=x<card.width/2?26:-26;
-    const dy=y<card.height/2?14:-14;
-    setCatNudge({x:dx,y:dy,rot:dx>0?8:-8});
-    setSpeech(noDot(pick(HOVER_LINES)));
-    setTimeout(()=>setCatNudge({x:0,y:0,rot:0}),650);
+
+    const dx=x<card.width/2?120:-120;
+    const dy=y<card.height/2?66:-66;
+    const rot=dx>0?16:-16;
+
+    setCatNudge({x:dx,y:dy,rot});
+
+    if(now-hoverCooldown.current>2400){
+      setSpeech(noDot(pick(HOVER_LINES)));
+      hoverCooldown.current=now;
+    }
+
+    setTimeout(()=>setCatNudge({x:0,y:0,rot:0}),780);
   }
 
   const orbit=[
-    {top:'10%', left:'max(12px, 4vw)'},
-    {top:'15%', right:'max(12px, 4vw)'},
-    {bottom:'13%', left:'max(12px, 5vw)'},
-    {bottom:'12%', right:'max(12px, 5vw)'},
+    { top:'clamp(72px, 10vh, 110px)', left:'clamp(12px, 4vw, 44px)' },
+    { top:'clamp(86px, 12vh, 126px)', right:'clamp(12px, 4vw, 44px)' },
+    { top:'clamp(330px, 54vh, 430px)', left:'clamp(18px, 6vw, 72px)' },
+    { top:'clamp(346px, 56vh, 446px)', right:'clamp(18px, 6vw, 72px)' },
   ];
 
   return (
     <div style={{ background:CREAM }}>
-      <section style={{ padding:'34px 18px 40px',background:'linear-gradient(150deg,#FFF8F0 0%,#FFF4EB 40%,#F0F8F5 100%)',position:'relative',overflow:'hidden',minHeight:'min(100vh,760px)' }}>
-        <div style={{ maxWidth:980,margin:'0 auto',textAlign:'center',position:'relative',zIndex:2 }}>
-          <div style={{ display:'inline-flex',alignItems:'center',gap:8,background:'rgba(255,255,255,.9)',borderRadius:99,padding:'6px 16px',fontSize:12.5,fontWeight:700,color:P,border:`1px solid ${BORDER}`,marginBottom:14,boxShadow:'0 2px 16px rgba(232,107,79,.08)' }}>🐾 Надёжная забота о питомцах</div>
-          <h1 style={{ fontSize:'clamp(24px,4.2vw,38px)',fontWeight:900,color:DARK,lineHeight:1.15,margin:'0 0 8px' }}>Вы по делам или в путешествии?</h1>
-          <h2 style={{ fontSize:'clamp(18px,3.1vw,28px)',fontWeight:800,margin:'0 0 12px',lineHeight:1.22,background:grad,WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent' }}>Ваш питомец в надёжных и любящих руках 🐾</h2>
-          <p style={{ fontSize:'clamp(13.5px,1.75vw,16px)',color:MUTED,lineHeight:1.62,margin:'0 auto 16px',maxWidth:530 }}>Проверенные ситтеры с душой позаботятся о вашем любимце — дома у ситтера или у вас. Фото каждый день. Спокойствие круглосуточно</p>
+      <section
+        style={{
+          padding:'22px 18px 18px',
+          background:'linear-gradient(150deg,#FFF8F0 0%,#FFF4EB 40%,#F0F8F5 100%)',
+          position:'relative',
+          overflow:'hidden',
+          minHeight:'min(84vh,680px)'
+        }}
+      >
+        <div style={{ maxWidth:1060,margin:'0 auto',textAlign:'center',position:'relative',zIndex:2 }}>
+          <div
+            style={{
+              display:'inline-flex',
+              alignItems:'center',
+              gap:8,
+              background:'rgba(255,255,255,.9)',
+              borderRadius:99,
+              padding:'6px 16px',
+              fontSize:12.5,
+              fontWeight:700,
+              color:P,
+              border:`1px solid ${BORDER}`,
+              marginBottom:10,
+              boxShadow:'0 2px 16px rgba(232,107,79,.08)'
+            }}
+          >
+            🐾 Надёжная забота о питомцах
+          </div>
 
-          <div style={{ position:'relative',height:'min(56vh,430px)',maxHeight:430,minHeight:330,margin:'0 auto 10px',maxWidth:960 }}>
+          <h1
+            style={{
+              fontSize:'clamp(24px,4vw,34px)',
+              fontWeight:900,
+              color:DARK,
+              lineHeight:1.14,
+              margin:'0 0 8px'
+            }}
+          >
+            Ваш питомец в надёжных и любящих руках
+          </h1>
+
+          <p
+            style={{
+              fontSize:'clamp(13px,1.45vw,15.5px)',
+              color:MUTED,
+              lineHeight:1.6,
+              margin:'0 auto 10px',
+              maxWidth:660
+            }}
+          >
+            Проверенные ситтеры с душой позаботятся о вашем любимце — дома у ситтера или у вас. Фото каждый день. Спокойствие круглосуточно
+          </p>
+
+          <div
+            style={{
+              position:'relative',
+              height:'clamp(420px,64vh,560px)',
+              maxHeight:560,
+              minHeight:420,
+              margin:'0 auto 2px',
+              maxWidth:1060
+            }}
+          >
             {reasons.map((r,i)=>{
-              const wobble=i===0?'float 7s ease-in-out infinite':i===1?'float 9s ease-in-out infinite':i===2?'float 8s ease-in-out infinite':'float 10s ease-in-out infinite';
+              const wobble =
+                i===0 ? 'float 7s ease-in-out infinite' :
+                i===1 ? 'float 9s ease-in-out infinite' :
+                i===2 ? 'float 8s ease-in-out infinite' :
+                        'float 10s ease-in-out infinite';
+
+              const pushedTransform = pushed===i ? ' translate(52px,-10px) rotate(8deg)' : '';
+              const enterTransform = entered ? ' translateY(0px)' : ' translateY(42vh) scale(.86)';
+
               return (
-                <button key={r.key} onClick={()=>handleReason(r)} style={{ position:'absolute', ...orbit[i], width:'clamp(156px,18vw,188px)', minHeight:92, borderRadius:20, border:`1px solid ${BORDER}`, background:'rgba(255,255,255,.78)', backdropFilter:'blur(6px)', WebkitBackdropFilter:'blur(6px)', boxShadow:'0 8px 24px rgba(80,30,10,.07)', padding:'12px 14px', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:6, opacity:.78, transition:'transform .22s ease, opacity .22s ease', animation:wobble, transform:pushed===i?'translate(60px,-6px) rotate(8deg)':'' }} onMouseEnter={e=>{e.currentTarget.style.opacity='1';e.currentTarget.style.transform=(pushed===i?'translate(60px,-6px) rotate(8deg) ':'')+'scale(1.05)';}} onMouseLeave={e=>{e.currentTarget.style.opacity='.78';e.currentTarget.style.transform=pushed===i?'translate(60px,-6px) rotate(8deg)':'';}}>
+                <button
+                  key={r.key}
+                  onClick={()=>handleReason(r)}
+                  style={{
+                    position:'absolute',
+                    ...orbit[i],
+                    width:i===1||i===3 ? 'clamp(170px,19vw,208px)' : 'clamp(156px,18vw,194px)',
+                    minHeight:94,
+                    borderRadius:22,
+                    border:`1px solid ${BORDER}`,
+                    background:'rgba(255,255,255,.76)',
+                    backdropFilter:'blur(6px)',
+                    WebkitBackdropFilter:'blur(6px)',
+                    boxShadow:'0 8px 24px rgba(80,30,10,.07)',
+                    padding:'12px 14px',
+                    cursor:'pointer',
+                    display:'flex',
+                    flexDirection:'column',
+                    alignItems:'center',
+                    justifyContent:'center',
+                    gap:6,
+                    opacity: entered ? .76 : 0,
+                    transition:'transform .75s ease, opacity .7s ease',
+                    animation:wobble,
+                    transform: enterTransform + pushedTransform
+                  }}
+                  onMouseEnter={e=>{
+                    e.currentTarget.style.opacity='1';
+                  }}
+                  onMouseLeave={e=>{
+                    e.currentTarget.style.opacity='.76';
+                  }}
+                >
                   <div style={{ fontSize:26 }}>{r.icon}</div>
-                  <div style={{ fontSize:14,fontWeight:800,color:DARK,lineHeight:1.22 }}>{r.title.map((line,idx)=><div key={idx}>{line}</div>)}</div>
+                  <div style={{ fontSize:14,fontWeight:800,color:DARK,lineHeight:1.22 }}>
+                    {r.title.map((line,idx)=><div key={idx}>{line}</div>)}
+                  </div>
                 </button>
               );
             })}
 
-            <div style={{ position:'absolute',left:'50%',top:'50%',transform:'translate(-50%,-50%)',width:'min(92vw,420px)',display:'flex',flexDirection:'column',alignItems:'center',zIndex:3 }}>
-              <div style={{ background:'rgba(255,255,255,.86)',border:`1px solid ${BORDER}`,borderRadius:16,padding:'10px 14px',fontSize:13.5,fontWeight:700,color:DARK,maxWidth:290,boxShadow:'0 4px 18px rgba(80,30,10,.10)',marginBottom:10,position:'relative',opacity:.92 }}>
+            <div
+              style={{
+                position:'absolute',
+                left:'50%',
+                top:'52%',
+                transform:'translate(-50%,-50%)',
+                width:'min(92vw,430px)',
+                display:'flex',
+                flexDirection:'column',
+                alignItems:'center',
+                zIndex:3,
+                pointerEvents:'none'
+              }}
+            >
+              <div
+                style={{
+                  background:'rgba(255,255,255,.80)',
+                  border:`1px solid ${BORDER}`,
+                  borderRadius:16,
+                  padding:'8px 12px',
+                  fontSize:12.4,
+                  fontWeight:700,
+                  color:DARK,
+                  maxWidth:272,
+                  boxShadow:'0 4px 18px rgba(80,30,10,.10)',
+                  marginBottom:10,
+                  position:'relative',
+                  opacity:.88,
+                  pointerEvents:'auto'
+                }}
+              >
                 {noDot(speech)}
-                <div style={{ position:'absolute',bottom:-6,left:'50%',marginLeft:-6,width:12,height:12,background:'rgba(255,255,255,.86)',borderRight:`1px solid ${BORDER}`,borderBottom:`1px solid ${BORDER}`,transform:'rotate(45deg)' }} />
+                <div
+                  style={{
+                    position:'absolute',
+                    bottom:-6,
+                    left:'50%',
+                    marginLeft:-6,
+                    width:12,
+                    height:12,
+                    background:'rgba(255,255,255,.80)',
+                    borderRight:`1px solid ${BORDER}`,
+                    borderBottom:`1px solid ${BORDER}`,
+                    transform:'rotate(45deg)'
+                  }}
+                />
               </div>
-              <img src='/oiia-cat.gif' alt='oiia cat' onMouseMove={handleCatMove} onMouseEnter={()=>setSpeech(noDot(pick(HOVER_LINES)))} style={{ width:'clamp(96px,13vw,124px)',height:'auto',marginBottom:12,transform:`translate(${catNudge.x}px,${catNudge.y}px) rotate(${catNudge.rot}deg)`,transition:'transform .18s ease',filter:'drop-shadow(0 8px 14px rgba(0,0,0,.12))' }} />
-              <button onClick={onForm} style={{ padding:'22px 46px',borderRadius:18,border:'none',background:grad,color:'#fff',fontWeight:900,fontSize:20,cursor:'pointer',boxShadow:'0 10px 30px rgba(232,107,79,.28)',animation:'glow 2.5s ease infinite' }}>Оставить заявку 🐾</button>
+
+              <img
+                src='/oiia-cat.gif'
+                alt='oiia cat'
+                onMouseMove={handleCatMove}
+                onMouseEnter={handleCatMove}
+                style={{
+                  width:'clamp(98px,12vw,126px)',
+                  height:'auto',
+                  marginBottom:12,
+                  transform:`translate(${catNudge.x}px,${catNudge.y}px) rotate(${catNudge.rot}deg)`,
+                  transition:'transform .22s ease',
+                  filter:'drop-shadow(0 8px 14px rgba(0,0,0,.12))',
+                  pointerEvents:'auto'
+                }}
+              />
+
+              <button
+                onClick={onForm}
+                style={{
+                  padding:'22px 46px',
+                  borderRadius:18,
+                  border:'none',
+                  background:grad,
+                  color:'#fff',
+                  fontWeight:900,
+                  fontSize:20,
+                  cursor:'pointer',
+                  boxShadow:'0 10px 30px rgba(232,107,79,.28)',
+                  animation:'glow 2.5s ease infinite',
+                  pointerEvents:'auto'
+                }}
+              >
+                Оставить заявку 🐾
+              </button>
             </div>
 
-            <button onClick={onSitter} style={{ position:'absolute',right:18,bottom:6,padding:'12px 18px',borderRadius:14,border:`1px solid ${BORDER}`,background:'rgba(255,255,255,.86)',color:'#666',fontWeight:800,fontSize:14,cursor:'pointer',opacity:.74,zIndex:4 }}>Стать ситтером →</button>
+            <button
+              onClick={onSitter}
+              style={{
+                position:'absolute',
+                right:18,
+                bottom:8,
+                padding:'12px 18px',
+                borderRadius:14,
+                border:`1px solid ${BORDER}`,
+                background:'rgba(255,255,255,.88)',
+                color:'#666',
+                fontWeight:800,
+                fontSize:14,
+                cursor:'pointer',
+                opacity:.78,
+                zIndex:4
+              }}
+            >
+              Стать ситтером →
+            </button>
           </div>
         </div>
       </section>
+
       <section style={{ padding:'52px 20px',background:'#fff',borderTop:`1px solid ${BORDER}` }}>
         <div style={{ maxWidth:840,margin:'0 auto' }}>
           <div style={{ textAlign:'center',marginBottom:34 }}>
@@ -850,8 +1069,10 @@ function Landing({ onForm, onSitter, reviews }) {
           </div>
         </div>
       </section>
+
       <Reviews reviews={reviews} />
       <SitterSection onApply={onSitter} />
+
       <footer style={{ background:DARK,padding:'28px 20px',textAlign:'center' }}>
         <div style={{ fontSize:19,fontWeight:900,color:'#fff',marginBottom:5 }}>🐾 PawSitter</div>
         <p style={{ color:'rgba(255,255,255,.3)',fontSize:12,margin:0 }}>Забота о питомцах с любовью · {new Date().getFullYear()}</p>
