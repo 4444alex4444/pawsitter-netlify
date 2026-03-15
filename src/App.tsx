@@ -113,9 +113,26 @@ function Fld({ label, hint, err, req, children }) {
   );
 }
 
-function Inp({ v, c, ph, type='text', err }) {
-  return <input value={v||''} onChange={e=>c(e.target.value)} placeholder={ph} type={type}
-    style={{ width:'100%', padding:'10px 13px', borderRadius:10, border:`1.5px solid ${err?P:BORDER}`, fontSize:14, outline:'none', color:DARK, background:'#fff' }} />;
+function Inp({ v, c, ph, type='text', err, ...rest }) {
+  return (
+    <input
+      value={v||''}
+      onChange={e=>c(e.target.value)}
+      placeholder={ph}
+      type={type}
+      {...rest}
+      style={{
+        width:'100%',
+        padding:'10px 13px',
+        borderRadius:10,
+        border:`1.5px solid ${err?P:BORDER}`,
+        fontSize:14,
+        outline:'none',
+        color:DARK,
+        background:'#fff'
+      }}
+    />
+  );
 }
 
 function Txt({ v, c, ph, rows=2 }) {
@@ -497,8 +514,25 @@ function S4({ f, u, e }) {
     <div className='fu'>
       <SHero em='📅' title='Даты и пожелания' sub='Когда нужна наша помощь?' />
       <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:10 }}>
-        <Fld label='Дата начала' req err={e.dateFrom}><Inp v={f.dateFrom||''} c={v=>u('dateFrom',v)} type='date' err={e.dateFrom} /></Fld>
-        <Fld label='Дата окончания' req err={e.dateTo}><Inp v={f.dateTo||''} c={v=>u('dateTo',v)} type='date' err={e.dateTo} /></Fld>
+        <Fld label='Дата начала' req err={e.dateFrom}>
+  <Inp
+    v={f.dateFrom||''}
+    c={v=>u('dateFrom',v)}
+    type='date'
+    err={e.dateFrom}
+    min={new Date().toISOString().split('T')[0]}
+  />
+</Fld>
+
+<Fld label='Дата окончания' req err={e.dateTo}>
+  <Inp
+    v={f.dateTo||''}
+    c={v=>u('dateTo',v)}
+    type='date'
+    err={e.dateTo}
+    min={f.dateFrom || new Date().toISOString().split('T')[0]}
+  />
+</Fld>
       </div>
       {days>0&&<div style={{ background:'linear-gradient(135deg,#FFF0EE,#FFE4DC)',borderRadius:12,padding:'11px 14px',marginBottom:4,textAlign:'center',border:'1px solid #FFCFC4' }}>
         <span style={{ fontSize:13.5,fontWeight:800,color:P }}>🗓 {days} {days===1?'день':days<5?'дня':'дней'} — мы позаботимся о вашем любимце!</span>
@@ -531,7 +565,9 @@ function S5({ f, u, e, onClear }) {
         <div style={{ fontWeight:800,color:'#C0392B',fontSize:12.5,marginBottom:4 }}>🆘 Экстренный контакт</div>
         <p style={{ margin:'0 0 10px',fontSize:12,color:MUTED }}>Позвоним, если не сможем дозвониться до вас</p>
         <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:10 }}>
-          <Fld label='Имя'><Inp v={f.emergName||''} c={v=>u('emergName',v)} ph='Имя' /></Fld>
+          <Fld label='Имя' req err={e.emergName}>
+  <Inp v={f.emergName||''} c={v=>u('emergName',v)} ph='Имя' err={e.emergName} />
+</Fld>
           <Fld label='Кем приходится'><Inp v={f.emergRel||''} c={v=>u('emergRel',v)} ph='Мама, муж...' /></Fld>
         </div>
         <Fld label='Телефон' req err={e.emergPhone}><PhoneInp v={f.emergPhone||''} c={v=>u('emergPhone',v)} err={e.emergPhone} /></Fld>
@@ -1178,9 +1214,10 @@ export default function App() {
     if(step===1){if(!f.petName.trim())e.petName='Введите кличку';if(!f.petType)e.petType='Выберите вид питомца';}
     if(step===4){if(!f.dateFrom)e.dateFrom='Укажите дату';if(!f.dateTo)e.dateTo='Укажите дату';}
     if(step===5){
-      if(!f.ownerName.trim())e.ownerName='Введите имя';
-      if(String(f.ownerPhone||'').replace(/\D/g,'').length<10)e.ownerPhone='Введите 10 цифр номера';
-      if(String(f.emergPhone||'').replace(/\D/g,'').length<10)e.emergPhone='Введите 10 цифр номера';
+      if(!f.ownerName.trim()) e.ownerName='Введите имя';
+      if(String(f.ownerPhone||'').replace(/\D/g,'').length<10) e.ownerPhone='Введите 10 цифр номера';
+      if(!(f.emergName||'').trim()) e.emergName='Укажите имя экстренного контакта';
+      if(String(f.emergPhone||'').replace(/\D/g,'').length<10) e.emergPhone='Введите 10 цифр номера';
     }
     setErr(e); return Object.keys(e).length===0;
   }
