@@ -855,18 +855,18 @@ function Landing({ onForm, onSitter, reviews }) {
   }
 
     const orbit = isMobile
-    ? [
-        { top:'300px', left:'10px' },
-        { top:'320px', right:'10px' },
-        { top:'620px', left:'12px' },
-        { top:'640px', right:'12px' },
-      ]
-    : [
-        { top:'clamp(72px, 10vh, 110px)', left:'clamp(12px, 4vw, 44px)' },
-        { top:'clamp(86px, 12vh, 126px)', right:'clamp(12px, 4vw, 44px)' },
-        { top:'clamp(330px, 54vh, 430px)', left:'clamp(18px, 6vw, 72px)' },
-        { top:'clamp(346px, 56vh, 446px)', right:'clamp(18px, 6vw, 72px)' },
-      ];
+  ? [
+      { top:'470px', left:'14px' },
+      { top:'500px', right:'14px' },
+      { top:'760px', left:'14px' },
+      { top:'790px', right:'14px' },
+    ]
+  : [
+      { top:'clamp(72px, 10vh, 110px)', left:'clamp(12px, 4vw, 44px)' },
+      { top:'clamp(86px, 12vh, 126px)', right:'clamp(12px, 4vw, 44px)' },
+      { top:'clamp(330px, 54vh, 430px)', left:'clamp(18px, 6vw, 72px)' },
+      { top:'clamp(346px, 56vh, 446px)', right:'clamp(18px, 6vw, 72px)' },
+    ];
 
   return (
     <div style={{ background:CREAM, width:'100%', overflowX:'hidden', maxWidth:'100vw' }}>
@@ -882,7 +882,7 @@ function Landing({ onForm, onSitter, reviews }) {
           overflow:'hidden',
           overflowX:'clip',
           maxWidth:'100vw',
-          minHeight:'min(84vh,680px)',
+          minHeight: isMobile ? '980px' : 'min(84vh,680px)',
           
         }}
       >
@@ -997,28 +997,29 @@ function Landing({ onForm, onSitter, reviews }) {
 
             <div
               style={{
-                position:'absolute',
-                left:'50%',
-                top:'52%',
-                transform:'translate(-50%,-50%)',
-                width:'min(92vw,430px)',
-                display:'flex',
-                flexDirection:'column',
-                alignItems:'center',
-                zIndex:3,
-                pointerEvents:'none'
-              }}
+  position:'absolute',
+  left:'50%',
+  top: isMobile ? '56%' : '52%',
+  transform:'translate(-50%,-50%)',
+  width: isMobile ? '92vw' : 'min(92vw,430px)',
+  display:'flex',
+  flexDirection:'column',
+  alignItems:'center',
+  zIndex:3,
+  pointerEvents:'none'
+}}
             >
               <div
                 style={{
                   background:'rgba(255,255,255,.80)',
                   border:`1px solid ${BORDER}`,
                   borderRadius:16,
-                  padding:'8px 12px',
-                  fontSize:12.4,
                   fontWeight:700,
                   color:DARK,
-                  maxWidth:272,
+                  maxWidth: isMobile ? 250 : 272,
+padding: isMobile ? '7px 10px' : '8px 12px',
+fontSize: isMobile ? 11.5 : 12.4,
+lineHeight: 1.35,
                   boxShadow:'0 4px 18px rgba(80,30,10,.10)',
                   marginTop:-58,
     marginBottom:90,
@@ -1057,7 +1058,7 @@ function Landing({ onForm, onSitter, reviews }) {
   filter:'drop-shadow(0 8px 14px rgba(0,0,0,.12))',
   position:'absolute',
   left:'42%',
-  top:5,
+  top: isMobile ? -8 : 5,
   pointerEvents:'auto'
 }}
               />
@@ -1068,7 +1069,9 @@ function Landing({ onForm, onSitter, reviews }) {
                   padding:'22px 46px',
                   borderRadius:18,
                   border:'none',
-                  marginTop: 90,
+                  marginTop: isMobile ? 92 : 68,
+width: isMobile ? '88vw' : 'auto',
+maxWidth: isMobile ? 520 : 'none',
                   background:grad,
                   color:'#fff',
                   fontWeight:900,
