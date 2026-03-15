@@ -1056,7 +1056,7 @@ function Landing({ onForm, onSitter, reviews }) {
   transition:'transform .22s ease',
   filter:'drop-shadow(0 8px 14px rgba(0,0,0,.12))',
   position:'absolute',
-  left:'50%',
+  left:'48%',
   top:5,
   pointerEvents:'auto'
 }}
@@ -1068,7 +1068,7 @@ function Landing({ onForm, onSitter, reviews }) {
                   padding:'22px 46px',
                   borderRadius:18,
                   border:'none',
-                  marginTop: 80,
+                  marginTop: 90,
                   background:grad,
                   color:'#fff',
                   fontWeight:900,
