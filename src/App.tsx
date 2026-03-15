@@ -1021,7 +1021,7 @@ function Landing({ onForm, onSitter, reviews }) {
                   color:DARK,
                   maxWidth:272,
                   boxShadow:'0 4px 18px rgba(80,30,10,.10)',
-                  marginTop:-38,
+                  marginTop:-58,
     marginBottom:90,
                   position:'relative',
                   opacity:.88,
