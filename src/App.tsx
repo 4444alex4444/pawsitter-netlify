@@ -856,10 +856,10 @@ function Landing({ onForm, onSitter, reviews }) {
 
     const orbit = isMobile
   ? [
-      { top:'470px', left:'14px' },
-      { top:'500px', right:'14px' },
-      { top:'760px', left:'14px' },
-      { top:'790px', right:'14px' },
+      { top:'380px', left:'14px' },
+      { top:'410px', right:'14px' },
+      { top:'670px', left:'14px' },
+      { top:'700px', right:'14px' },
     ]
   : [
       { top:'clamp(72px, 10vh, 110px)', left:'clamp(12px, 4vw, 44px)' },
@@ -999,7 +999,7 @@ function Landing({ onForm, onSitter, reviews }) {
               style={{
   position:'absolute',
   left:'50%',
-  top: isMobile ? '28%' : '52%',
+  top: isMobile ? '48%' : '52%',
   transform:'translate(-50%,-50%)',
   width: isMobile ? '92vw' : 'min(92vw,430px)',
   display:'flex',
