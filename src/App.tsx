@@ -874,7 +874,7 @@ function Landing({ onForm, onSitter, reviews }) {
       <section
         style={{
           padding:'22px 18px 18px',
-          backgroundImage: "linear-gradient(150deg, rgba(255,248,240,.88) 0%, rgba(255,244,235,.82) 40%, rgba(240,248,245,.84) 100%), url('/pawsitter-soft-bg.svg')",
+          backgroundImage: "linear-gradient(150deg, rgba(255,248,240,.88) 0%, rgba(255,244,235,.82) 40%, rgba(240,248,245,.84) 100%), url('/pawsitter-bg.png')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
