@@ -856,10 +856,10 @@ function Landing({ onForm, onSitter, reviews }) {
 
     const orbit = isMobile
   ? [
-      { top:'380px', left:'14px' },
-      { top:'410px', right:'14px' },
-      { top:'670px', left:'14px' },
-      { top:'700px', right:'14px' },
+      { top:'410px', left:'14px' },
+      { top:'430px', right:'14px' },
+      { top:'700px', left:'14px' },
+      { top:'730px', right:'14px' },
     ]
   : [
       { top:'clamp(72px, 10vh, 110px)', left:'clamp(12px, 4vw, 44px)' },
