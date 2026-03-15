@@ -1057,7 +1057,7 @@ function Landing({ onForm, onSitter, reviews }) {
   filter:'drop-shadow(0 8px 14px rgba(0,0,0,.12))',
   position:'absolute',
   left:'50%',
-  top:-22,
+  top:5,
   pointerEvents:'auto'
 }}
               />
