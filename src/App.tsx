@@ -999,7 +999,7 @@ function Landing({ onForm, onSitter, reviews }) {
               style={{
   position:'absolute',
   left:'50%',
-  top: isMobile ? '48%' : '52%',
+  top: isMobile ? '28%' : '52%',
   transform:'translate(-50%,-50%)',
   width: isMobile ? '92vw' : 'min(92vw,430px)',
   display:'flex',
