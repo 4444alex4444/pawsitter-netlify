@@ -777,8 +777,6 @@ function Landing({ onForm, onSitter, reviews }) {
       const index=Math.floor(Math.random()*4);
       setPushed(index);
       setSpeech(noDot(pick([
-        'Не мешайся под лапами',
-        'Эта причина уже понятна',
         'Давайте держать орбиту чистой',
         'Слишком близко летает'
       ])));
