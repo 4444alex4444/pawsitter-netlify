@@ -1050,14 +1050,16 @@ function Landing({ onForm, onSitter, reviews }) {
                 onMouseMove={handleCatMove}
                 onMouseEnter={handleCatMove}
                 style={{
-                  width:'clamp(98px,12vw,126px)',
-                  height:'auto',
-                  marginBottom:12,
-                  transform:`translate(${catNudge.x}px,${catNudge.y}px) rotate(${catNudge.rot}deg)`,
-                  transition:'transform .22s ease',
-                  filter:'drop-shadow(0 8px 14px rgba(0,0,0,.12))',
-                  pointerEvents:'auto'
-                }}
+  width:'clamp(98px,12vw,126px)',
+  height:'auto',
+  transform:`translate(-50%,0) translate(${catNudge.x}px,${catNudge.y}px) rotate(${catNudge.rot}deg)`,
+  transition:'transform .22s ease',
+  filter:'drop-shadow(0 8px 14px rgba(0,0,0,.12))',
+  position:'absolute',
+  left:'50%',
+  top:0,
+  pointerEvents:'auto'
+}}
               />
 
               <button
@@ -1073,6 +1075,8 @@ function Landing({ onForm, onSitter, reviews }) {
                   cursor:'pointer',
                   boxShadow:'0 10px 30px rgba(232,107,79,.28)',
                   animation:'glow 2.5s ease infinite',
+                  position:'relative',
+                  zIndex:5,
                   pointerEvents:'auto'
                 }}
               >
