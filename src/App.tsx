@@ -792,6 +792,8 @@ function Landing({ onForm, onSitter, reviews }) {
     {icon:'🐾', title:['Питомец не любит','переезды'], key:'nomoves'},
   ];
 
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+
   function handleReason(reason){
     setSpeech(noDot(REASON_LINES[reason.key]||pick(START_LINES)));
     setTimeout(()=>onForm(),1400);
@@ -817,22 +819,32 @@ function Landing({ onForm, onSitter, reviews }) {
     setTimeout(()=>setCatNudge({x:0,y:0,rot:0}),780);
   }
 
-  const orbit=[
-    { top:'clamp(72px, 10vh, 110px)', left:'clamp(12px, 4vw, 44px)' },
-    { top:'clamp(86px, 12vh, 126px)', right:'clamp(12px, 4vw, 44px)' },
-    { top:'clamp(330px, 54vh, 430px)', left:'clamp(18px, 6vw, 72px)' },
-    { top:'clamp(346px, 56vh, 446px)', right:'clamp(18px, 6vw, 72px)' },
-  ];
+    const orbit = isMobile
+    ? [
+        { top:'300px', left:'10px' },
+        { top:'320px', right:'10px' },
+        { top:'620px', left:'12px' },
+        { top:'640px', right:'12px' },
+      ]
+    : [
+        { top:'clamp(72px, 10vh, 110px)', left:'clamp(12px, 4vw, 44px)' },
+        { top:'clamp(86px, 12vh, 126px)', right:'clamp(12px, 4vw, 44px)' },
+        { top:'clamp(330px, 54vh, 430px)', left:'clamp(18px, 6vw, 72px)' },
+        { top:'clamp(346px, 56vh, 446px)', right:'clamp(18px, 6vw, 72px)' },
+      ];
 
   return (
-    <div style={{ background:CREAM }}>
+    <div style={{ background:CREAM, width:'100%', overflowX:'hidden', maxWidth:'100vw' }}>
       <section
         style={{
           padding:'22px 18px 18px',
           background:'linear-gradient(150deg,#FFF8F0 0%,#FFF4EB 40%,#F0F8F5 100%)',
           position:'relative',
           overflow:'hidden',
-          minHeight:'min(84vh,680px)'
+          overflowX:'clip',
+          maxWidth:'100vw',
+          minHeight:'min(84vh,680px)',
+          
         }}
       >
         <div style={{ maxWidth:1060,margin:'0 auto',textAlign:'center',position:'relative',zIndex:2 }}>
@@ -906,7 +918,10 @@ function Landing({ onForm, onSitter, reviews }) {
                   style={{
                     position:'absolute',
                     ...orbit[i],
-                    width:i===1||i===3 ? 'clamp(170px,19vw,208px)' : 'clamp(156px,18vw,194px)',
+                    width: isMobile
+  ? 'min(42vw, 168px)'
+  : (i===1||i===3 ? 'clamp(170px,19vw,208px)' : 'clamp(156px,18vw,194px)'),
+                    willChange:'transform',
                     minHeight:94,
                     borderRadius:22,
                     border:`1px solid ${BORDER}`,
